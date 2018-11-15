@@ -5,6 +5,7 @@ namespace Smart\EtlBundle\Extractor;
 use Smart\EtlBundle\Exception\Extractor\EntityAlreadyRegisteredException;
 use Smart\EtlBundle\Exception\Extractor\EntityIdentifiedNotFoundException;
 use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessedException;
+use Smart\EtlBundle\Exception\Extractor\EntityTypeNotHandledException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Yaml\Yaml;
@@ -121,7 +122,7 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
     protected function processObject($entityType, array $data)
     {
         if (!isset($this->entitiesToProcess[$entityType])) {
-            throw new \Exception('Entity type ' . $entityType . ' is not handled');
+            throw new EntityTypeNotHandledException($entityType);
         }
 
         $objectClass = $this->entitiesToProcess[$entityType]['class'];

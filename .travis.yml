@@ -14,7 +14,7 @@ before_install:
 install: composer install -o
 
 script:
-  - vendor/bin/phpcs --ignore=/vendor/*,/Tests/Resources/app/* --extensions=php --encoding=utf-8 --standard=PSR2 -np .
+  - vendor/bin/phpcs --ignore=/vendor/*,/tests/app/*,/var/* --extensions=php --encoding=utf-8 --standard=PSR2 -np .
   - vendor/bin/phpunit tests --coverage-clover=coverage.clover
 
 after_script:

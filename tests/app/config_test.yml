@@ -1,0 +1,22 @@
+framework:
+    secret: 'we_do_test'
+
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+            default:
+                driver:   pdo_sqlite
+                path:     "%kernel.cache_dir%/test.db"
+    orm:
+        auto_generate_proxy_classes: '%kernel.debug%'
+        entity_managers:
+            default:
+                connection: default
+                mappings:
+                    Test:
+                        is_bundle: false
+                        type: annotation
+                        dir: '%kernel.project_dir%/tests/Entity'
+                        prefix: 'Smart\EtlBundle\Tests'
+                        alias: Test

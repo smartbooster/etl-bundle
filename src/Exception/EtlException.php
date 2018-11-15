@@ -16,6 +16,6 @@ class EtlException extends RuntimeException
 
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {
-        return parent::__construct(sprintf($this->message, $message), $code, $previous);
+        parent::__construct(sprintf($this->message, $message), $code, $previous);
     }
 }
