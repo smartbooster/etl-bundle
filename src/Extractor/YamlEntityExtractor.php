@@ -67,11 +67,11 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
             $this->check();
             
             $files = $this->getFiles('yml');
-            foreach ($files as $filename) {
-                if (!isset($this->entitiesToProcess[$filename])) {
+            foreach ($this->entitiesToProcess as $entityType => $data) {
+                if (!isset($files[$entityType])) {
                     continue;
                 }
-                $this->processFile($filename);
+                $this->processFile($entityType);
             }
 
             return $this->entities;

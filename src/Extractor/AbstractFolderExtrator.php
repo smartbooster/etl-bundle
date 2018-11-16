@@ -52,6 +52,6 @@ abstract class AbstractFolderExtrator
             $files[] = substr($file->getFilename(), 0, -(strlen($extension)+1));
         }
 
-        return $files;
+        return array_combine($files, $files);
     }
 }
