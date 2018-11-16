@@ -3,6 +3,8 @@
 namespace Smart\EtlBundle\Extractor;
 
 use Smart\EtlBundle\Exception\Extractor\EntityAlreadyRegisteredException;
+use Smart\EtlBundle\Exception\Extractor\EntityIdentifiedNotFoundException;
+use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Yaml\Yaml;
@@ -19,7 +21,7 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
      * ]
      * @var array
      */
-    protected $entitiesToProcess;
+    protected $entitiesToProcess = [];
 
     /**
      * @var array
@@ -90,7 +92,8 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
     }
 
     /**
-     * @param string $filename
+     * @param $filename
+     * @throws \Exception
      */
     protected function processFile($filename)
     {
@@ -101,6 +104,9 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
             $object = $this->processObject($filename, $values);
             if ($object !== null) {
                 $entityIdentifier = $this->entitiesToProcess[$filename]['callback']($object);
+                if (isset($this->entities[$entityIdentifier])) {
+                    throw new EntityIdentifierAlreadyProcessException($entityIdentifier);
+                }
                 $this->entities[$entityIdentifier] = $object;
             }
         }
@@ -145,7 +151,7 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
             $identifier = substr($identifier, 1);
         }
         if (!isset($this->entities[$identifier])) {
-            throw new \Exception('Entity identifed by ' . $identifier . ' not found');
+            throw new EntityIdentifiedNotFoundException($identifier);
         }
 
         return $this->entities[$identifier];

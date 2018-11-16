@@ -4,6 +4,8 @@ namespace Smart\EtlBundle\Tests\Extractor;
 
 use PHPUnit\Framework\TestCase;
 use Smart\EtlBundle\Exception\Extractor\EntityAlreadyRegisteredException;
+use Smart\EtlBundle\Exception\Extractor\EntityIdentifiedNotFoundException;
+use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessException;
 use Smart\EtlBundle\Extractor\YamlEntityExtractor;
 use Smart\EtlBundle\Tests\Model\Project;
 use Smart\EtlBundle\Tests\Model\Task;
@@ -32,6 +34,40 @@ class YamlEntityExtractorTest extends TestCase
                 return $e->getCode();
             })
         ;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testEntityIdentifierAlreadyProcessException()
+    {
+        $this->expectException(EntityIdentifierAlreadyProcessException::class);
+
+        $extractor = new YamlEntityExtractor();
+        $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
+        $extractor
+            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+                return "same_code";
+            })
+        ;
+        $extractor->extract();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testEntityIdentifiedNotFoundException()
+    {
+        $this->expectException(EntityIdentifiedNotFoundException::class);
+
+        $extractor = new YamlEntityExtractor();
+        $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
+        $extractor
+            ->addEntityToProcess('task', 'Smart\EtlBundle\Tests\Model\Task', function ($e) {
+                return 'task' . $e->getProject()->getCode() . '-' . substr(md5($e->getName()), 0, 5);
+            })
+        ;
+        $extractor->extract();
     }
 
     /**
