@@ -19,7 +19,7 @@ If your project code needs business data to work correctly you will have to main
 Synchronizing this data by hand is not reliable.
 
 To benefits of git features like branches, history, blame... we usually store this kind of data into files directly in the code.
-This allow us deploy exactly what we want and to synchronize the data with the corresponding code. adn by the way it allow you to run your unit tests in your CI.
+This allow us deploy exactly what we want and to synchronize the data with the corresponding code. And by the way it allow you to run your unit tests in your CI.
 
 ## Installation
 
