@@ -3,6 +3,7 @@
 namespace Smart\EtlBundle\Tests\Extractor;
 
 use PHPUnit\Framework\TestCase;
+use Smart\EtlBundle\Exception\Extractor\EntityAlreadyRegisteredException;
 use Smart\EtlBundle\Extractor\YamlEntityExtractor;
 use Smart\EtlBundle\Tests\Model\Project;
 use Smart\EtlBundle\Tests\Model\Task;
@@ -14,6 +15,28 @@ use Smart\EtlBundle\Tests\Model\Task;
  */
 class YamlEntityExtractorTest extends TestCase
 {
+    /**
+     * @throws \Exception
+     */
+    public function testEntityAlreadyRegisteredException()
+    {
+        $this->expectException(EntityAlreadyRegisteredException::class);
+
+        $extractor = new YamlEntityExtractor();
+        $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
+        $extractor
+            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+                return $e->getCode();
+            })
+            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+                return $e->getCode();
+            })
+        ;
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function testExtractEntities()
     {
         $extractor = new YamlEntityExtractor();

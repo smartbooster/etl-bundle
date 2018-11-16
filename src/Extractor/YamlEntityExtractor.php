@@ -2,6 +2,7 @@
 
 namespace Smart\EtlBundle\Extractor;
 
+use Smart\EtlBundle\Exception\Extractor\EntityAlreadyRegisteredException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Yaml\Yaml;
@@ -45,7 +46,7 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
     public function addEntityToProcess($entityType, $entityClass, $identifierCallback)
     {
         if (isset($this->entitiesToProcess[$entityType])) {
-            throw new \Exception('Entity type already registered');
+            throw new EntityAlreadyRegisteredException($entityType);
         }
 
         $this->entitiesToProcess[$entityType] = [
