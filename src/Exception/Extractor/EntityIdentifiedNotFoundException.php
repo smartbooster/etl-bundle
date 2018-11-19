@@ -10,17 +10,7 @@ namespace Smart\EtlBundle\Exception\Extractor;
 class EntityIdentifiedNotFoundException extends ExtractException
 {
     /**
-     * @param string $identifier
-     *
-     * @return EntityIdentifiedNotFoundException
+     * @inheritdoc
      */
-    public static function create($identifier)
-    {
-        return new self(
-            sprintf(
-                'Entity identifed by ' . $identifier . ' not found',
-                $identifier
-            )
-        );
-    }
+    protected $message = 'Entity identifed by "%s" not found';
 }

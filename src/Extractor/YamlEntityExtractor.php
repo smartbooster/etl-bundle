@@ -4,7 +4,7 @@ namespace Smart\EtlBundle\Extractor;
 
 use Smart\EtlBundle\Exception\Extractor\EntityAlreadyRegisteredException;
 use Smart\EtlBundle\Exception\Extractor\EntityIdentifiedNotFoundException;
-use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessException;
+use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessedException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Yaml\Yaml;
@@ -105,7 +105,7 @@ class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInt
             if ($object !== null) {
                 $entityIdentifier = $this->entitiesToProcess[$filename]['callback']($object);
                 if (isset($this->entities[$entityIdentifier])) {
-                    throw new EntityIdentifierAlreadyProcessException($entityIdentifier);
+                    throw new EntityIdentifierAlreadyProcessedException($entityIdentifier);
                 }
                 $this->entities[$entityIdentifier] = $object;
             }

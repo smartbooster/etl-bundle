@@ -3,11 +3,11 @@
 namespace Smart\EtlBundle\Exception\Extractor;
 
 /**
- * Exception thrown when the entity is already in the list of entities to extract
+ * Exception thrown when the entity identifier had already been added to the process entities
  *
  * @author Mathieu Ducrot <mathieu.ducrot@pia-production.fr>
  */
-class EntityAlreadyRegisteredException extends ExtractException
+class EntityIdentifierAlreadyProcessedException extends ExtractException
 {
     /**
      * @inheritdoc
