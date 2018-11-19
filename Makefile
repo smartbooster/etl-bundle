@@ -1,4 +1,17 @@
 
+## Docker
+up:
+	docker-compose up
+
+down:
+	docker-compose down
+
+ps:
+	docker-compose ps
+
+ssh:
+	docker exec -it --user=dev etlbundle-docker-php bash
+
 # ====================
 # Qualimetry rules
 
@@ -14,3 +27,8 @@ composer.validate:
 
 qa: qualimetry
 qualimetry: checkstyle lint.php composer.validate
+
+# ====================
+## Testing
+phpunit:
+	vendor/bin/phpunit -c phpunit.xml.dist --coverage-text

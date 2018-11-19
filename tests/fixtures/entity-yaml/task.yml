@@ -1,0 +1,9 @@
+-
+    name: "Bundle setup"
+    project: "@etl-bundle"
+-
+    name: "Load yml entity file into database"
+    project: "@etl-bundle"
+-
+    name: "Export database entities to yml file"
+    project: "@etl-bundle"
