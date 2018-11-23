@@ -16,6 +16,17 @@ abstract class AbstractFolderExtrator
     protected $folderToExtract;
 
     /**
+     * @var string
+     */
+    abstract protected function getFileExtension();
+
+    /**
+     * @param  string $filepath
+     * @return mixed
+     */
+    abstract protected function extractFileContent($filepath);
+
+    /**
      * @return string
      */
     public function getFolderToExtract()
