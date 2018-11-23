@@ -7,5 +7,8 @@ namespace Smart\EtlBundle\Loader;
  */
 interface LoaderInterface
 {
+    /**
+     * @param array $data
+     */
     public function load(array $data);
 }

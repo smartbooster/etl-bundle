@@ -66,6 +66,9 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function load(array $data)
     {
         $this->entityManager->beginTransaction();

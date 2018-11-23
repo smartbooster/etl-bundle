@@ -2,10 +2,12 @@
 
 namespace Smart\EtlBundle\Loader;
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-class CsvLoader extends AbstractFileLoader implements LoaderInterface
+class YamlLoader extends AbstractFileLoader implements LoaderInterface
 {
     /**
      * @inheritDoc
@@ -27,13 +29,7 @@ class CsvLoader extends AbstractFileLoader implements LoaderInterface
         if (!is_dir(dirname($filepath))) {
             mkdir(dirname($filepath), 0700, true);
         }
-        $fp = fopen($filepath, 'w');
 
-        //write headers
-        fputcsv($fp, array_keys($data[0]), ',', '"');
-        foreach ($data as $row) {
-            fputcsv($fp, $row);
-        }
-        fclose($fp);
+        file_put_contents($filepath, Yaml::dump($data));
     }
 }
