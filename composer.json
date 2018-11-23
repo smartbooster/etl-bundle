@@ -13,15 +13,21 @@
     }
   ],
   "require": {
+    "doctrine/doctrine-bundle": "^1.6",
+    "doctrine/doctrine-fixtures-bundle": "^2.0",
+    "doctrine/orm": "^2.5",
     "symfony/console": "^2.8 || ^3.2 || ^4.0",
     "symfony/http-kernel": "^2.8 || ^3.2 || ^4.0",
     "symfony/yaml": "^2.8 || ^3.2 || ^4.0",
     "symfony/property-access": "^2.8 || ^3.2 || ^4.0",
+    "symfony/property-info": "^2.8 || ^3.2 || ^4.0",
     "symfony/finder": "^2.8 || ^3.2 || ^4.0"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.0",
-    "phpunit/phpunit": "6.*"
+    "phpunit/phpunit": "6.*",
+    "liip/functional-test-bundle": "^1.9.5",
+    "nelmio/alice": "^2.3"
   },
   "autoload": {
     "psr-4": {

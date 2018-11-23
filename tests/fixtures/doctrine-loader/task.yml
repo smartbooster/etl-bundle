@@ -1,0 +1,9 @@
+Smart\EtlBundle\Tests\Entity\Task:
+    etl-bundle-setup:
+        code: "etl-bundle-setup"
+        name: "Bundle setup"
+        project: "@etl-bundle"
+    etl-bundle-loadyml:
+        code: "etl-bundle-loadyml"
+        name: "Load yml entity file into database"
+        project: "@etl-bundle"

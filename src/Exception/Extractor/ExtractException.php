@@ -14,5 +14,5 @@ class ExtractException extends EtlException
     /**
      * @inheritdoc
      */
-    protected $message = 'Extract Exception : "%s"';
+    protected $message = 'EXTRACTOR : Exception : "%s"';
 }

@@ -17,10 +17,23 @@ class Project
      */
     protected $name;
 
+    /**
+     * @var string
+     */
+    protected $description;
+
     public function __construct($code = null, $name = null)
     {
         $this->code = $code;
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getName();
     }
 
     /**
@@ -53,5 +66,21 @@ class Project
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 }

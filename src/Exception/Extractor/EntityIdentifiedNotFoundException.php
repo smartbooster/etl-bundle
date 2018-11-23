@@ -12,5 +12,5 @@ class EntityIdentifiedNotFoundException extends ExtractException
     /**
      * @inheritdoc
      */
-    protected $message = 'Entity identifed by "%s" not found';
+    protected $message = 'EXTRACTOR : Entity identifed by "%s" not found';
 }
