@@ -26,12 +26,17 @@ class CsvEntityExtractor extends AbstractFolderExtrator implements ExtractorInte
 
         //csv file have to be formatted with headers on the first line
         $headers = $file->fgetcsv();
+        $nbHeaders = count($headers);
 
-        $data = [];
+        $datas = [];
         while (!$file->eof()) {
-            $data[] = array_combine($headers, $file->fgetcsv());
+            $csvData = $file->fgetcsv();
+            if (count($csvData) != $nbHeaders) {
+                continue;
+            }
+            $datas[] = array_combine($headers, $csvData);
         }
 
-        return $data;
+        return $datas;
     }
 }
