@@ -3,6 +3,7 @@
 namespace Smart\EtlBundle\Tests\Model;
 
 use Smart\EtlBundle\Entity\ImportableTrait;
+use Smart\EtlBundle\Tests\Entity\Organisation;
 
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
@@ -10,6 +11,11 @@ use Smart\EtlBundle\Entity\ImportableTrait;
 class Project
 {
     use ImportableTrait;
+
+    /**
+     * @var Organisation
+     */
+    protected $organisation;
 
     /**
      * @var string
@@ -38,6 +44,22 @@ class Project
     public function __toString()
     {
         return (string) $this->getName();
+    }
+
+    /**
+     * @return Organisation
+     */
+    public function getOrganisation()
+    {
+        return $this->organisation;
+    }
+
+    /**
+     * @param Organisation $organisation
+     */
+    public function setOrganisation($organisation)
+    {
+        $this->organisation = $organisation;
     }
 
     /**

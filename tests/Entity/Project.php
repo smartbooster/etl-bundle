@@ -22,6 +22,13 @@ class Project extends ProjectModel
     protected $id;
 
     /**
+     * @var Organisation
+     * @ORM\ManyToOne(targetEntity="Smart\EtlBundle\Tests\Entity\Organisation", inversedBy="projects")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    protected $organisation;
+
+    /**
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
