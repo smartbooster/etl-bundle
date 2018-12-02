@@ -37,6 +37,9 @@ This bundle is structured around the [Extract Transform Load pattern (ETL) desig
 - [Transform](docs/transform.md)
 - Load
 
+- [Utils (to ease your implementation)](docs/utils.md)
+
+
 ## Contributing
 
 Pull requests are welcome. 
