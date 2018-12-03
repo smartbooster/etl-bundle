@@ -7,7 +7,7 @@ namespace Smart\EtlBundle\Extractor;
  */
 class CsvEntityExtractor extends AbstractFolderExtrator implements ExtractorInterface
 {
-    use EntityExtractorTrait;
+    use EntityFileExtractorTrait;
 
     /**
      * @inheritDoc

@@ -1,5 +1,6 @@
 Smart\EtlBundle\Tests\Entity\Project:
     etl-bundle:
+        organisation: '@smartbooster'
         code: "etl-bundle"
         name: "ETL Bundle"
         description: "Old description in database"

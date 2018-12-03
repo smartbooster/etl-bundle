@@ -2,13 +2,14 @@
 
 namespace Smart\EtlBundle\Tests\Model;
 
+use Smart\EtlBundle\Entity\ImportableInterface;
 use Smart\EtlBundle\Entity\ImportableTrait;
 use Smart\EtlBundle\Tests\Entity\Organisation;
 
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-class Project
+class Project implements ImportableInterface
 {
     use ImportableTrait;
 
@@ -60,6 +61,18 @@ class Project
     public function setOrganisation($organisation)
     {
         $this->organisation = $organisation;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImportId()
+    {
+        if (is_null($this->importId)) {
+            return $this->getCode();
+        }
+
+        return $this->importId;
     }
 
     /**

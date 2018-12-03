@@ -7,12 +7,18 @@ use Smart\EtlBundle\Exception\Extractor\EntityIdentifiedNotFoundException;
 use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessedException;
 use Smart\EtlBundle\Exception\Extractor\EntityTypeNotHandledException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-trait EntityExtractorTrait
+trait EntityFileExtractorTrait
 {
+    /**
+     * @var string
+     */
+    protected $folderToExtract;
+
     /**
      * List of entities to extract
      * [
@@ -76,6 +82,26 @@ trait EntityExtractorTrait
             throw $e;
         }
     }
+
+    /**
+     * @see AbstractFolderExtrator::getFiles()
+     */
+    abstract protected function getFiles($extension);
+
+    /**
+     * @var AbstractFolderExtrator::getFileExtension()
+     */
+    abstract protected function getFileExtension();
+
+    /**
+     * @var AbstractFolderExtrator::extractFileContent()
+     */
+    abstract protected function extractFileContent($filepath);
+
+    /**
+     * @see AbstractExtractor::transformData()
+     */
+    abstract protected function transformData(array $data);
 
     protected function check()
     {
