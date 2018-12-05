@@ -2,11 +2,15 @@
 
 namespace Smart\EtlBundle\Tests\Model;
 
+use Smart\EtlBundle\Entity\ImportableTrait;
+
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
 class Project
 {
+    use ImportableTrait;
+
     /**
      * @var string
      */

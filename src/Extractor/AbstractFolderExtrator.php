@@ -8,7 +8,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-abstract class AbstractFolderExtrator
+abstract class AbstractFolderExtrator extends AbstractExtractor
 {
     /**
      * @var string
@@ -45,7 +45,7 @@ abstract class AbstractFolderExtrator
     protected function check()
     {
         if (!is_dir($this->folderToExtract)) {
-            throw new \BadMethodCallException('Invalid folder to extract');
+            throw new \BadMethodCallException('Invalid folder to extract : ' . $this->folderToExtract);
         }
     }
     

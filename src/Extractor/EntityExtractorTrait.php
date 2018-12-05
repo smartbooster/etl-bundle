@@ -103,12 +103,17 @@ trait EntityExtractorTrait
             throw new EntityTypeNotHandledException($entityType);
         }
 
+        $data = $this->transformData($data);
+        if ($data === null) {
+            return null;
+        }
+
         $objectClass = $this->entitiesToProcess[$entityType]['class'];
         $object = new $objectClass();
 
         foreach ($data as $key => $value) {
             $valueToSet = $value;
-            if (strpos($value, '@') === 0) {
+            if (is_string($value) && strpos($value, '@') === 0) {
                 //handle relations
                 $valueToSet = $this->getEntity($value);
             }
@@ -146,6 +151,9 @@ trait EntityExtractorTrait
 
         $data = $this->extractFileContent($filepath);
         foreach ($data as $values) {
+            if ($values === null) {
+                continue;
+            }
             $object = $this->processObject($filename, $values);
             if ($object !== null) {
                 $entityIdentifier = $this->entitiesToProcess[$filename]['callback']($object);

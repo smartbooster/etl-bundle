@@ -17,7 +17,7 @@ ssh:
 
 cs: checkstyle
 checkstyle:
-	vendor/bin/phpcs --ignore=/vendor/*,/tests/app/*,/var/* --extensions=php --encoding=utf-8 --standard=PSR2 -np .
+	vendor/bin/phpcs --ignore=/tests/app/AppKernel.php --extensions=php --encoding=utf-8 --standard=PSR2 -np src tests
 
 lint.php:
 	find tests src -type f -name "*.php" -exec php -l {} \;

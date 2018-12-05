@@ -29,6 +29,16 @@ This allow us deploy exactly what we want and to synchronize the data with the c
 composer require smartbooster/etl-bundle
 ```
 
+## Documentation
+
+This bundle is structured around the [Extract Transform Load pattern (ETL) design pattern](https://en.wikipedia.org/wiki/Extract,_transform,_load).
+
+- Extract
+- [Transform](docs/transform.md)
+- Load
+
+- [Utils (to ease your implementation)](docs/utils.md)
+
 
 ## Contributing
 
