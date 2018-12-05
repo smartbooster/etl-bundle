@@ -1,0 +1,4 @@
+Smart\EtlBundle\Tests\Entity\Organisation:
+    smartbooster:
+        name: SMART BOOSTER
+        import_id: smartbooster

@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Smart\EtlBundle\Loader\DoctrineInsertUpdateLoader;
+use Smart\EtlBundle\Tests\Entity\Organisation;
 use Smart\EtlBundle\Tests\Entity\Project;
 use Smart\EtlBundle\Tests\Entity\Task;
 
@@ -28,14 +29,28 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
         $schemaTool->createSchema([$metadatas]);
         
         $this->loadFixtureFiles([
+            __DIR__ . '/../fixtures/doctrine-loader/organisation.yml',
             __DIR__ . '/../fixtures/doctrine-loader/project.yml',
             __DIR__ . '/../fixtures/doctrine-loader/task.yml',
         ]);
 
+        $smartbooster = new Organisation();
+        $smartbooster->setName('SMART BOOSTER updated');
+        $smartbooster->setImportId('smartbooster');
+
         $projectEtl = new Project('etl-bundle', 'ETL Bundle');
+        $projectEtl->setOrganisation($smartbooster);
         $projectEtl->setDescription('new description updated');
 
         $loader = new DoctrineInsertUpdateLoader($em);
+        $loader->addEntityToProcess(
+            'Smart\EtlBundle\Tests\Entity\Organisation',
+            function ($e) {
+                return $e->getImportId();
+            },
+            'importId',
+            [] //nothing to update, just for relation linking
+        );
         $loader->addEntityToProcess(
             'Smart\EtlBundle\Tests\Entity\Project',
             function ($e) {
@@ -43,6 +58,7 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
             },
             'code',
             [
+                'organisation',
                 'code',
                 'name',
                 'description'
@@ -69,6 +85,10 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
         ]);
         $this->assertEquals('new description updated', $projectEtlLoaded->getDescription());
         $this->assertEquals(2, $em->getRepository('Smart\EtlBundle\Tests\Entity\Project')->count([]));
+
+        //Test relation linking
+        $smartboosterDb = $projectEtlLoaded->getOrganisation();
+        $this->assertEquals('SMART BOOSTER', $smartboosterDb->getName());
 
         //Test Insertion
         $newProject = new Project('new-project', 'new project');

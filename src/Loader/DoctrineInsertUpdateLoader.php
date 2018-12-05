@@ -36,7 +36,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
      * @var array
      */
     protected $entitiesToProcess = [];
-    
+
     public function __construct($entityManager)
     {
         $this->entityManager = $entityManager;
@@ -46,11 +46,11 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     /**
      * @param string $entityClass
      * @param function $identifierCallback
-     * @param string $identifierProperty
+     * @param string $identifierProperty : if null this entity will be always insert
      * @param array $entityProperties properties to synchronize
      * @return $this
      */
-    public function addEntityToProcess($entityClass, $identifierCallback, $identifierProperty, array $entityProperties)
+    public function addEntityToProcess($entityClass, $identifierCallback, $identifierProperty, array $entityProperties = [])
     {
         if (isset($this->entitiesToProcess[$entityClass])) {
             throw new EntityAlreadyRegisteredException($entityClass);
@@ -79,7 +79,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             $this->entityManager->flush();
             $this->entityManager->commit();
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            var_dump('EXCEPTION LOADER : ' . $e->getMessage());
             $this->entityManager->rollback();
         }
     }
@@ -96,16 +96,21 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             throw new EntityTypeNotHandledException(get_class($object));
         }
         $identifier = $this->entitiesToProcess[get_class($object)]['callback']($object);
-        
+
         //Replace relations by their reference
         foreach ($this->entitiesToProcess[get_class($object)]['properties'] as $property) {
-            if (is_object($this->accessor->getValue($object, $property))) {
-                $relation = $this->accessor->getValue($object, $property);
+            $propertyValue = $this->accessor->getValue($object, $property);
+            if ($this->isEntityRelation($propertyValue)) {
+                $relation = $propertyValue; //better understanding
 
                 if (!isset($this->entitiesToProcess[get_class($relation)])) {
                     throw new EntityTypeNotHandledException(get_class($relation));
                 }
                 $relationIdentifier = $this->entitiesToProcess[get_class($relation)]['callback']($relation);
+                if (!isset($this->references[$relationIdentifier])) {
+                    //new relation should be processed before
+                    $this->processObject($relation);
+                }
                 $this->accessor->setValue(
                     $object,
                     $property,
@@ -114,12 +119,15 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             }
         }
 
-        $dbObject = $this->entityManager->getRepository(get_class($object))->findOneBy([
-            $this->entitiesToProcess[get_class($object)]['identifier'] => $identifier
-        ]);
+        $dbObject = null;
+        if (!is_null($this->entitiesToProcess[get_class($object)]['identifier'])) {
+            $dbObject = $this->entityManager->getRepository(get_class($object))->findOneBy([$this->entitiesToProcess[get_class($object)]['identifier'] => $identifier]);
+        }
         if ($dbObject === null) {
             $this->entityManager->persist($object);
-            $this->references[$identifier] = $object;
+            if (!is_null($identifier)) {
+                $this->references[$identifier] = $object;
+            }
         } else {
             foreach ($this->entitiesToProcess[get_class($object)]['properties'] as $property) {
                 $this->accessor->setValue($dbObject, $property, $this->accessor->getValue($object, $property));
@@ -128,5 +136,16 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         }
 
         return $object;
+    }
+
+    /**
+     * Check if $propertyValue is an entity relation to process
+     *
+     * @param  mixed $propertyValue
+     * @return bool
+     */
+    protected function isEntityRelation($propertyValue)
+    {
+        return (is_object($propertyValue) && !($propertyValue instanceof \DateTime));
     }
 }
