@@ -4,13 +4,14 @@ namespace Smart\EtlBundle\Tests\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Smart\EtlBundle\Entity\ImportableInterface;
 use Smart\EtlBundle\Entity\ImportableTrait;
 
 /**
  * @ORM\Entity()
  * @ORM\Table(name="etlbundle_organisation")
  */
-class Organisation
+class Organisation implements ImportableInterface
 {
     use ImportableTrait;
 
