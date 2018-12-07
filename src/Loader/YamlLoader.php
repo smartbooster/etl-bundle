@@ -12,6 +12,11 @@ class YamlLoader extends AbstractFileLoader implements LoaderInterface
     /**
      * @inheritDoc
      */
+    protected $fileExtension = 'yml';
+    
+    /**
+     * @inheritDoc
+     */
     public function load(array $data)
     {
         foreach ($data as $filename => $fileData) {

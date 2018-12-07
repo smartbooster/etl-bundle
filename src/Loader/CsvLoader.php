@@ -10,6 +10,11 @@ class CsvLoader extends AbstractFileLoader implements LoaderInterface
     /**
      * @inheritDoc
      */
+    protected $fileExtension = 'csv';
+
+    /**
+     * @inheritDoc
+     */
     public function load(array $data)
     {
         foreach ($data as $filename => $fileData) {

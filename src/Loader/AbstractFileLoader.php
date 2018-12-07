@@ -17,10 +17,9 @@ abstract class AbstractFileLoader
      */
     protected $fileExtension;
 
-    public function __construct($folderToLoad, $fileExtension)
+    public function __construct($folderToLoad)
     {
         $this->folderToLoad = $folderToLoad;
-        $this->fileExtension = $fileExtension;
     }
 
     /**

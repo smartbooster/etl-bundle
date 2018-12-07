@@ -15,7 +15,7 @@ class CsvLoaderTest extends TestCase
 {
     public function testLoad()
     {
-        $loader = new CsvLoader(__DIR__ . '/../../var/csv-loader', 'csv');
+        $loader = new CsvLoader(__DIR__ . '/../../var/csv-loader');
 
         $data = [];
         $data['projects'] = ArrayProvider::getSimpleProjects();
