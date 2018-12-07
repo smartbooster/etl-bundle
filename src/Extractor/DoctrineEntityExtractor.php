@@ -61,7 +61,9 @@ class DoctrineEntityExtractor extends AbstractExtractor implements ExtractorInte
      */
     public function getQueryBuilder()
     {
-
+        if ($this->queryBuilder instanceof QueryBuilder) {
+            return $this->queryBuilder;
+        }
         $repository = $this->entityManager->getRepository($this->entityToExtract);
         if (!$repository instanceof EntityRepository) {
             throw new \UnexpectedValueException("No repository found for class {$this->entityToExtract}");
@@ -88,8 +90,9 @@ class DoctrineEntityExtractor extends AbstractExtractor implements ExtractorInte
      */
     public function extract()
     {
-        $entities = $this->queryBuilder->getQuery()->getResult();
+        $entities = $this->getQueryBuilder()->getQuery()->getResult();
 
+        $toReturn = [];
         //Replace relation references
         foreach ($entities as $key => $entity) {
             if (!$entity instanceof ImportableInterface) {
@@ -108,11 +111,10 @@ class DoctrineEntityExtractor extends AbstractExtractor implements ExtractorInte
                     $entityData[$property] = $value;
                 }
             }
-            $entities[$entity->getImportId()] = $entityData;
-            unset($entities[$key]);
+            $toReturn[$entity->getImportId()] = $entityData;
         }
 
-        return $entities;
+        return $toReturn;
     }
 
     /**

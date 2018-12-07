@@ -15,7 +15,7 @@ class YamlLoaderTest extends TestCase
 {
     public function testLoad()
     {
-        $loader = new YamlLoader(__DIR__ . '/../../var/yaml-loader', 'yml');
+        $loader = new YamlLoader(__DIR__ . '/../../var/yaml-loader');
 
         $data = [];
         $data['projects'] = ArrayProvider::getSimpleProjects();
