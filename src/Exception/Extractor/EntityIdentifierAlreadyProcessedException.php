@@ -12,5 +12,5 @@ class EntityIdentifierAlreadyProcessedException extends ExtractException
     /**
      * @inheritdoc
      */
-    protected $message = 'EXTRACTOR : Entity type "%s" already registered';
+    protected $message = 'EXTRACTOR : Entity with identifier "%s" already processed';
 }
