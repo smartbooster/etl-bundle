@@ -54,4 +54,12 @@ trait ImportableTrait
     {
         $this->importedAt = $importedAt;
     }
+
+    /**
+     * @return bool
+     */
+    public function isImported()
+    {
+        return $this->getImportedAt() != null;
+    }
 }

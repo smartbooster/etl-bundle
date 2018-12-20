@@ -3,6 +3,7 @@
 namespace Smart\EtlBundle\Loader;
 
 use Doctrine\ORM\EntityManager;
+use Smart\EtlBundle\Entity\ImportableInterface;
 use Smart\EtlBundle\Exception\Loader\EntityTypeNotHandledException;
 use Smart\EtlBundle\Exception\Loader\EntityAlreadyRegisteredException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -85,8 +86,8 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     }
 
     /**
-     * @param  mixed $object
-     * @return mixed
+     * @param  ImportableInterface $object
+     * @return ImportableInterface
      * @throws \Exception
      * @throws \TypeError
      */
@@ -124,6 +125,9 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             $dbObject = $this->entityManager->getRepository(get_class($object))->findOneBy([$this->entitiesToProcess[get_class($object)]['identifier'] => $identifier]);
         }
         if ($dbObject === null) {
+            if (!$object->isImported()) {
+                $object->setImportedAt(new \DateTime());
+            }
             $this->entityManager->persist($object);
             if (!is_null($identifier)) {
                 $this->references[$identifier] = $object;
@@ -131,6 +135,9 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         } else {
             foreach ($this->entitiesToProcess[get_class($object)]['properties'] as $property) {
                 $this->accessor->setValue($dbObject, $property, $this->accessor->getValue($object, $property));
+            }
+            if (!$dbObject->isImported()) {
+                $dbObject->setImportedAt(new \DateTime());
             }
             $this->references[$identifier] = $dbObject;
         }

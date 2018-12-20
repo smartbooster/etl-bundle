@@ -16,4 +16,19 @@ interface ImportableInterface
      * @return string
      */
     public function getImportId();
+
+    /**
+     * @return \DateTime
+     */
+    public function getImportedAt();
+
+    /**
+     * @param \DateTime $importedAt
+     */
+    public function setImportedAt($importedAt);
+
+    /**
+     * @return bool
+     */
+    public function isImported();
 }
