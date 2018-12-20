@@ -22,10 +22,10 @@ class CsvEntityExtractorTest extends TestCase
         $extractor = new CsvEntityExtractor();
         $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-csv');
         $extractor
-            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+            ->addEntityToProcess('project', Project::class, function ($e) {
                 return $e->getCode();
             })
-            ->addEntityToProcess('task', 'Smart\EtlBundle\Tests\Model\Task', function ($e) {
+            ->addEntityToProcess('task', Task::class, function ($e) {
                 return 'task' . $e->getProject()->getCode() . '-' . substr(md5($e->getName()), 0, 5);
             })
         ;

@@ -65,4 +65,16 @@ class Task extends TaskModel
     {
         $this->code = $code;
     }
+    
+    /**
+     * @return string
+     */
+    public function getImportId()
+    {
+        if (is_null($this->importId)) {
+            return $this->getCode();
+        }
+
+        return $this->importId;
+    }
 }
