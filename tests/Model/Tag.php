@@ -17,6 +17,12 @@ class Tag implements ImportableInterface
      */
     protected $name;
 
+    public function __construct($name = null, $importId = null)
+    {
+        $this->name = $name;
+        $this->importId = $importId;
+    }
+
     /**
      * @return string
      */

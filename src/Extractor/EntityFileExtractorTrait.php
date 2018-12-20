@@ -142,6 +142,12 @@ trait EntityFileExtractorTrait
             if (is_string($value) && strpos($value, '@') === 0) {
                 //handle relations
                 $valueToSet = $this->getEntity($value);
+            } elseif (is_array($value)) {
+                foreach ($valueToSet as $k => $v) {
+                    if (is_string($v) && strpos($v, '@') === 0) {
+                        $valueToSet[$k] = $this->getEntity($v);
+                    }
+                }
             }
 
             $this->accessor->setValue($object, $key, $valueToSet);

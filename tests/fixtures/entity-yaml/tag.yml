@@ -1,0 +1,15 @@
+-
+    name: Todo
+    import_id: todo
+-
+    name: Doing
+    import_id: doing
+-
+    name: Done
+    import_id: done
+-
+    name: Easy
+    import_id: easy
+-
+    name: Hard
+    import_id: hard

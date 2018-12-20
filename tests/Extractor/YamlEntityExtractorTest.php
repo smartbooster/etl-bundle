@@ -8,6 +8,7 @@ use Smart\EtlBundle\Exception\Extractor\EntityIdentifiedNotFoundException;
 use Smart\EtlBundle\Exception\Extractor\EntityIdentifierAlreadyProcessedException;
 use Smart\EtlBundle\Extractor\YamlEntityExtractor;
 use Smart\EtlBundle\Tests\Model\Project;
+use Smart\EtlBundle\Tests\Model\Tag;
 use Smart\EtlBundle\Tests\Model\Task;
 
 /**
@@ -27,10 +28,10 @@ class YamlEntityExtractorTest extends TestCase
         $extractor = new YamlEntityExtractor();
         $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
         $extractor
-            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+            ->addEntityToProcess('project', Project::class, function ($e) {
                 return $e->getCode();
             })
-            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+            ->addEntityToProcess('project', Project::class, function ($e) {
                 return $e->getCode();
             })
         ;
@@ -46,7 +47,7 @@ class YamlEntityExtractorTest extends TestCase
         $extractor = new YamlEntityExtractor();
         $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
         $extractor
-            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+            ->addEntityToProcess('project', Project::class, function ($e) {
                 return "same_code";
             })
         ;
@@ -63,7 +64,7 @@ class YamlEntityExtractorTest extends TestCase
         $extractor = new YamlEntityExtractor();
         $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
         $extractor
-            ->addEntityToProcess('task', 'Smart\EtlBundle\Tests\Model\Task', function ($e) {
+            ->addEntityToProcess('task', Task::class, function ($e) {
                 return 'task' . $e->getProject()->getCode() . '-' . substr(md5($e->getName()), 0, 5);
             })
         ;
@@ -78,26 +79,46 @@ class YamlEntityExtractorTest extends TestCase
         $extractor = new YamlEntityExtractor();
         $extractor->setFolderToExtract(__DIR__ . '/../fixtures/entity-yaml');
         $extractor
-            ->addEntityToProcess('project', 'Smart\EtlBundle\Tests\Model\Project', function ($e) {
+            ->addEntityToProcess('project', Project::class, function ($e) {
                 return $e->getCode();
             })
-            ->addEntityToProcess('task', 'Smart\EtlBundle\Tests\Model\Task', function ($e) {
+            ->addEntityToProcess('tag', Tag::class, function ($e) {
+                return $e->getImportId();
+            })
+            ->addEntityToProcess('task', Task::class, function ($e) {
                 return 'task' . $e->getProject()->getCode() . '-' . substr(md5($e->getName()), 0, 5);
             })
         ;
         $entities = $extractor->extract();
-
-        $this->assertEquals(5, count($entities));
+        $this->assertEquals(10, count($entities));
 
         $projectEtl = new Project('etl-bundle', 'ETL Bundle');
         $projectSonata = new Project('sonata-bundle', 'Sonata Bundle');
+
+        $tagTodo = new Tag('Todo', 'todo');
+        $tagDoing = new Tag('Doing', 'doing');
+        $tagDone = new Tag('Done', 'done');
+        $tagEasy = new Tag('Easy', 'easy');
+        $tagHard = new Tag('Hard', 'hard');
+
         $taskA = new Task($projectEtl, 'Bundle setup');
+
         $taskB = new Task($projectEtl, 'Load yml entity file into database');
+        $taskB->addTag($tagDoing);
+        $taskB->addTag($tagEasy);
+        
         $taskC = new Task($projectEtl, 'Export database entities to yml file');
+        $taskC->addTag($tagTodo);
+        $taskC->addTag($tagHard);
 
         $this->assertEquals([
             'etl-bundle' => $projectEtl,
             'sonata-bundle' => $projectSonata,
+            'todo' => $tagTodo,
+            'doing' => $tagDoing,
+            'done' => $tagDone,
+            'easy' => $tagEasy,
+            'hard' => $tagHard,
             'tasketl-bundle-9d05b' => $taskA,
             'tasketl-bundle-519be' =>$taskB,
             'tasketl-bundle-c9264' => $taskC

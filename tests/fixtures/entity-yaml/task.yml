@@ -4,6 +4,12 @@
 -
     name: "Load yml entity file into database"
     project: "@etl-bundle"
+    tags:
+        - "@doing"
+        - "@easy"
 -
     name: "Export database entities to yml file"
     project: "@etl-bundle"
+    tags:
+        - "@todo"
+        - "@hard"
