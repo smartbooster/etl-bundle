@@ -2,11 +2,16 @@
 
 namespace Smart\EtlBundle\Tests\Model;
 
+use Smart\EtlBundle\Entity\ImportableInterface;
+use Smart\EtlBundle\Entity\ImportableTrait;
+
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-class Task
+class Task implements ImportableInterface
 {
+    use ImportableTrait;
+
     /**
      * @var string
      */
