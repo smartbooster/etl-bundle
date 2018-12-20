@@ -8,6 +8,7 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Smart\EtlBundle\Loader\DoctrineInsertUpdateLoader;
 use Smart\EtlBundle\Tests\Entity\Organisation;
 use Smart\EtlBundle\Tests\Entity\Project;
+use Smart\EtlBundle\Tests\Entity\Tag;
 use Smart\EtlBundle\Tests\Entity\Task;
 
 /**
@@ -31,6 +32,7 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
         $this->loadFixtureFiles([
             __DIR__ . '/../fixtures/doctrine-loader/organisation.yml',
             __DIR__ . '/../fixtures/doctrine-loader/project.yml',
+            __DIR__ . '/../fixtures/doctrine-loader/tag.yml',
             __DIR__ . '/../fixtures/doctrine-loader/task.yml',
         ]);
 
@@ -75,6 +77,14 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
                 'code',
                 'name'
             ]
+        );
+        $loader->addEntityToProcess(
+            Tag::class,
+            function ($e) {
+                return $e->getImportId();
+            },
+            'importId',
+            ['name']
         );
 
         $loader->load([$projectEtl]);
@@ -132,5 +142,11 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
         $loader->load([$taskSetUp, $newTask]);
         $this->assertEquals(3, $em->getRepository(Task::class)->count([]));
         $this->assertEquals('New Task updated', $newTaskLoaded->getName());
+
+        //ManyToMany
+        $taskSetUpLoaded = $em->getRepository(Task::class)->findOneBy([
+            'code' => 'etl-bundle-setup'
+        ]);
+        $this->assertEquals(2, count($taskSetUpLoaded->getTags()));
     }
 }

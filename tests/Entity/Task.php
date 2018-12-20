@@ -35,6 +35,15 @@ class Task extends TaskModel
     protected $project;
 
     /**
+     * @ORM\ManyToMany(targetEntity="Smart\EtlBundle\Tests\Entity\Tag")
+     * @ORM\JoinTable(name="etlbundle_task_tag",
+     *      joinColumns={@ORM\JoinColumn(name="task_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="tag_id", referencedColumnName="id")}
+     * )
+     */
+    protected $tags;
+
+    /**
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
