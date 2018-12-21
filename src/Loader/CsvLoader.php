@@ -37,6 +37,15 @@ class CsvLoader extends AbstractFileLoader implements LoaderInterface
         //write headers
         fputcsv($fp, array_keys($data[0]), ',', '"');
         foreach ($data as $row) {
+            $row = array_map(function ($e) {
+                if (is_array($e)) {
+                    if (count($e) === 0) {
+                        return '|';
+                    }
+                    return implode('|', $e);
+                }
+                return $e;
+            }, $row);
             fputcsv($fp, $row);
         }
         fclose($fp);

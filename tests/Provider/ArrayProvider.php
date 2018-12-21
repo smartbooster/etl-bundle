@@ -24,9 +24,35 @@ class ArrayProvider
     public static function getSimpleTasks()
     {
         return [
-            ['name' => 'Bundle setup', 'project' => '@etl-bundle'],
-            ['name' => 'Load yml entity file into database', 'project' => '@etl-bundle'],
-            ['name' => 'Export database entities to yml file', 'project' => '@etl-bundle']
+            [
+                'name' => 'Bundle setup',
+                'project' => '@etl-bundle',
+                'tags' => []
+            ],
+            [
+                'name' => 'Load yml entity file into database',
+                'project' => '@etl-bundle',
+                'tags' => ['@doing', '@easy']
+            ],
+            [
+                'name' => 'Export database entities to yml file',
+                'project' => '@etl-bundle',
+                'tags' => ['@todo', '@hard']
+            ]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSimpleTags()
+    {
+        return [
+            ['name' => 'Todo', 'import_id' => 'todo'],
+            ['name' => 'Doing', 'import_id' => 'doing'],
+            ['name' => 'Done', 'import_id' => 'done'],
+            ['name' => 'Easy', 'import_id' => 'easy'],
+            ['name' => 'Hard', 'import_id' => 'hard'],
         ];
     }
 }

@@ -19,6 +19,7 @@ class YamlLoaderTest extends TestCase
 
         $data = [];
         $data['projects'] = ArrayProvider::getSimpleProjects();
+        $data['tags'] = ArrayProvider::getSimpleTags();
         $data['tasks'] = ArrayProvider::getSimpleTasks();
         $loader->load($data);
 
@@ -40,12 +41,19 @@ projectsExpected;
 -
     name: 'Bundle setup'
     project: '@etl-bundle'
+    tags: {  }
 -
     name: 'Load yml entity file into database'
     project: '@etl-bundle'
+    tags:
+        - '@doing'
+        - '@easy'
 -
     name: 'Export database entities to yml file'
     project: '@etl-bundle'
+    tags:
+        - '@todo'
+        - '@hard'
 
 tasksExpected;
 
