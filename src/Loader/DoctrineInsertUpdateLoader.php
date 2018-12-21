@@ -117,6 +117,25 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                     $property,
                     $this->references[$relationIdentifier]
                 );
+            } elseif ($propertyValue instanceof \Traversable) {
+                foreach ($propertyValue as $k => $v) {
+                    if ($this->isEntityRelation($v)) {
+                        if (!isset($this->entitiesToProcess[get_class($v)])) {
+                            throw new EntityTypeNotHandledException(get_class($v));
+                        }
+                        $relationIdentifier = $this->entitiesToProcess[get_class($v)]['callback']($v);
+                        if (!isset($this->references[$relationIdentifier])) {
+                            //new relation should be processed before
+                            $this->processObject($v);
+                        }
+                        $propertyValue[$k] = $this->references[$relationIdentifier];
+                    }
+                }
+                $this->accessor->setValue(
+                    $object,
+                    $property,
+                    $propertyValue
+                );
             }
         }
 
@@ -153,6 +172,6 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
      */
     protected function isEntityRelation($propertyValue)
     {
-        return (is_object($propertyValue) && !($propertyValue instanceof \DateTime));
+        return (is_object($propertyValue) && !($propertyValue instanceof \DateTime) && !($propertyValue instanceof \Traversable));
     }
 }
