@@ -107,6 +107,16 @@ class DoctrineEntityExtractor extends AbstractExtractor implements ExtractorInte
                         throw new EntityTypeNotHandledException(get_class($value));
                     }
                     $entityData[$property] = '@' . $value->getImportId();
+                } elseif ($value instanceof \Traversable) {
+                    $entityData[$property] = [];
+                    foreach ($value as $k => $v) {
+                        if ($this->isEntityRelation($v)) {
+                            if (!$v instanceof ImportableInterface) {
+                                throw new EntityTypeNotHandledException(get_class($v));
+                            }
+                            $entityData[$property][$k] = '@' . $v->getImportId();
+                        }
+                    }
                 } else {
                     $entityData[$property] = $value;
                 }
@@ -125,6 +135,6 @@ class DoctrineEntityExtractor extends AbstractExtractor implements ExtractorInte
      */
     protected function isEntityRelation($propertyValue)
     {
-        return (is_object($propertyValue) && !($propertyValue instanceof \DateTime));
+        return (is_object($propertyValue) && !($propertyValue instanceof \DateTime) && !($propertyValue instanceof \Traversable));
     }
 }

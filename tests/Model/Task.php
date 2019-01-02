@@ -2,6 +2,7 @@
 
 namespace Smart\EtlBundle\Tests\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Smart\EtlBundle\Entity\ImportableInterface;
 use Smart\EtlBundle\Entity\ImportableTrait;
 
@@ -22,10 +23,16 @@ class Task implements ImportableInterface
      */
     protected $project;
 
+    /**
+     * @var Tag[]
+     */
+    protected $tags;
+
     public function __construct(Project $project = null, $name = null)
     {
         $this->project = $project;
         $this->name = $name;
+        $this->tags = new ArrayCollection();
     }
 
     /**
@@ -58,5 +65,43 @@ class Task implements ImportableInterface
     public function setProject($project)
     {
         $this->project = $project;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @param Tag[] $tags
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+    }
+
+    /**
+     * @param Tag $tag
+     */
+    public function addTag(Tag $tag)
+    {
+        if ($this->tags->contains($tag)) {
+            return;
+        }
+        $this->tags->add($tag);
+    }
+
+    /**
+     * @param Tag $tag
+     */
+    public function removeTag(Tag $tag)
+    {
+        if (!$this->tags->contains($tag)) {
+            return;
+        }
+        $this->tags->removeElement($tag);
     }
 }

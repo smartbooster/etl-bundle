@@ -1,0 +1,16 @@
+Smart\EtlBundle\Tests\Entity\Tag:
+    todo:
+        name: Todo
+        import_id: todo
+    doing:
+        name: Doing
+        import_id: doing
+    done:
+        name: Done
+        import_id: done
+    easy:
+        name: Easy
+        import_id: easy
+    hard:
+        name: Hard
+        import_id: hard

@@ -35,6 +35,6 @@ class YamlLoader extends AbstractFileLoader implements LoaderInterface
             mkdir(dirname($filepath), 0700, true);
         }
 
-        file_put_contents($filepath, Yaml::dump($data));
+        file_put_contents($filepath, Yaml::dump($data, 3));
     }
 }

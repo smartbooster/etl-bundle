@@ -1,4 +1,4 @@
-name,project
-"Bundle setup","@etl-bundle"
-"Load yml entity file into database","@etl-bundle"
-"Export database entities to yml file","@etl-bundle"
+name,project,tags
+"Bundle setup",@etl-bundle,|
+"Load yml entity file into database",@etl-bundle,@doing|@easy
+"Export database entities to yml file",@etl-bundle,@todo|@hard

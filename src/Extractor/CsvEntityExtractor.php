@@ -34,6 +34,17 @@ class CsvEntityExtractor extends AbstractFolderExtrator implements ExtractorInte
             if (count($csvData) != $nbHeaders) {
                 continue;
             }
+            //Handle many relations
+            $csvData = array_map(function ($e) {
+                if (strpos($e, '|') !== false) {
+                    if (strlen($e) == 1) {
+                        return [];
+                    }
+                    return explode('|', $e);
+                }
+                return $e;
+            }, $csvData);
+            
             $datas[] = array_combine($headers, $csvData);
         }
 

@@ -8,6 +8,7 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Smart\EtlBundle\Loader\DoctrineInsertUpdateLoader;
 use Smart\EtlBundle\Tests\Entity\Organisation;
 use Smart\EtlBundle\Tests\Entity\Project;
+use Smart\EtlBundle\Tests\Entity\Tag;
 use Smart\EtlBundle\Tests\Entity\Task;
 
 /**
@@ -31,6 +32,7 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
         $this->loadFixtureFiles([
             __DIR__ . '/../fixtures/doctrine-loader/organisation.yml',
             __DIR__ . '/../fixtures/doctrine-loader/project.yml',
+            __DIR__ . '/../fixtures/doctrine-loader/tag.yml',
             __DIR__ . '/../fixtures/doctrine-loader/task.yml',
         ]);
 
@@ -73,8 +75,17 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
             [
                 'project',
                 'code',
-                'name'
+                'name',
+                'tags'
             ]
+        );
+        $loader->addEntityToProcess(
+            Tag::class,
+            function ($e) {
+                return $e->getImportId();
+            },
+            'importId',
+            ['name']
         );
 
         $loader->load([$projectEtl]);
@@ -113,12 +124,21 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
         //=======================
         //  Test relations
         //=======================
+        $tagTodo = new Tag('Todo', 'todo');
+        $tagDoing = new Tag('Doing', 'doing');
+        $tagDone = new Tag('Done', 'done');
+        $tagEasy = new Tag('Easy', 'easy');
+        $tagHard = new Tag('Hard', 'hard');
+
         $this->assertEquals(2, $em->getRepository(Task::class)->count([]));
         $taskSetUp = new Task($projectEtl, 'Bundle setup updated');
         $taskSetUp->setCode('etl-bundle-setup');
+        $taskSetUp->addTag($tagTodo);
 
         $newTask = new Task($projectEtl, 'New Task');
         $newTask->setCode('etl-bundle-new-task');
+        $newTask->addTag($tagDoing);
+        $newTask->addTag($tagEasy);
 
         $loader->load([$taskSetUp, $newTask]);
 
@@ -127,10 +147,35 @@ class DoctrineInsertUpdateLoaderTest extends WebTestCase
             'code' => 'etl-bundle-new-task'
         ]);
         $this->assertEquals('New Task', $newTaskLoaded->getName());
+        $this->assertEquals(2, $newTaskLoaded->getTags()->count());
 
         $newTask->setName('New Task updated');
         $loader->load([$taskSetUp, $newTask]);
         $this->assertEquals(3, $em->getRepository(Task::class)->count([]));
         $this->assertEquals('New Task updated', $newTaskLoaded->getName());
+
+        //ManyToMany
+        $taskSetUpLoaded = $em->getRepository(Task::class)->findOneBy([
+            'code' => 'etl-bundle-setup'
+        ]);
+        $this->assertEquals(1, count($taskSetUpLoaded->getTags()));
+        //Test manytomany remove and replace
+        $tagTodoLoaded = $em->getRepository(Tag::class)->findOneBy(['importId' => 'todo']);
+        $taskSetUp->removeTag($tagTodoLoaded);
+        $taskSetUp->addTag($tagDone);
+
+        $loader->load([$taskSetUp]);
+        $taskSetUpLoaded = $em->getRepository(Task::class)->findOneBy([
+            'code' => 'etl-bundle-setup'
+        ]);
+        $this->assertEquals(1, count($taskSetUpLoaded->getTags()));
+        //Test manytomany remove
+        $tagDoneLoaded = $em->getRepository(Tag::class)->findOneBy(['importId' => 'done']);
+        $taskSetUp->removeTag($tagDoneLoaded);
+        $loader->load([$taskSetUp]);
+        $taskSetUpLoaded = $em->getRepository(Task::class)->findOneBy([
+            'code' => 'etl-bundle-setup'
+        ]);
+        $this->assertEquals(0, count($taskSetUpLoaded->getTags()));
     }
 }

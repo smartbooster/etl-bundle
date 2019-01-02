@@ -19,6 +19,7 @@ class CsvLoaderTest extends TestCase
 
         $data = [];
         $data['projects'] = ArrayProvider::getSimpleProjects();
+        $data['tags'] = ArrayProvider::getSimpleTags();
         $data['tasks'] = ArrayProvider::getSimpleTasks();
         $loader->load($data);
 
@@ -30,10 +31,10 @@ class CsvLoaderTest extends TestCase
         $this->assertEquals($projectsExpected, $projectsLoaded);
 
         $tasksLoaded = file_get_contents(__DIR__ . '/../../var/csv-loader/tasks.csv');
-        $tasksExpected = 'name,project' . PHP_EOL;
-        $tasksExpected .= '"Bundle setup",@etl-bundle' . PHP_EOL;
-        $tasksExpected .= '"Load yml entity file into database",@etl-bundle' . PHP_EOL;
-        $tasksExpected .= '"Export database entities to yml file",@etl-bundle' . PHP_EOL;
+        $tasksExpected = 'name,project,tags' . PHP_EOL;
+        $tasksExpected .= '"Bundle setup",@etl-bundle,|' . PHP_EOL;
+        $tasksExpected .= '"Load yml entity file into database",@etl-bundle,@doing|@easy' . PHP_EOL;
+        $tasksExpected .= '"Export database entities to yml file",@etl-bundle,@todo|@hard' . PHP_EOL;
 
         $this->assertEquals($tasksExpected, $tasksLoaded);
     }

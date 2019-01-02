@@ -3,7 +3,13 @@ Smart\EtlBundle\Tests\Entity\Task:
         code: "etl-bundle-setup"
         name: "Bundle setup"
         project: "@etl-bundle"
+        tags:
+            - "@doing"
+            - "@easy"
     etl-bundle-loadyml:
         code: "etl-bundle-loadyml"
         name: "Load yml entity file into database"
         project: "@etl-bundle"
+        tags:
+            - "@todo"
+            - "@hard"

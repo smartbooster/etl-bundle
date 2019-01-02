@@ -6,6 +6,8 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Smart\EtlBundle\Extractor\DoctrineEntityExtractor;
+use Smart\EtlBundle\Tests\Entity\Project;
+use Smart\EtlBundle\Tests\Entity\Task;
 
 /**
  * vendor/bin/phpunit tests/Extractor/DoctrineEntityExtractorTest.php
@@ -19,7 +21,7 @@ class DoctrineEntityExtractorTest extends WebTestCase
         //Initialise database
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager('default');
-        $metadatas = $em->getMetadataFactory()->getMetadataFor('Smart\EtlBundle\Tests\Entity\Project');
+        $metadatas = $em->getMetadataFactory()->getMetadataFor(Project::class);
 
         $schemaTool = new SchemaTool($em);
         $schemaTool->dropDatabase();
@@ -28,11 +30,12 @@ class DoctrineEntityExtractorTest extends WebTestCase
         $this->loadFixtureFiles([
             __DIR__ . '/../fixtures/doctrine-loader/organisation.yml',
             __DIR__ . '/../fixtures/doctrine-loader/project.yml',
+            __DIR__ . '/../fixtures/doctrine-loader/tag.yml',
             __DIR__ . '/../fixtures/doctrine-loader/task.yml',
         ]);
 
         $extractor = new DoctrineEntityExtractor($em);
-        $extractor->setEntityToExtract('Smart\EtlBundle\Tests\Entity\Project', ['organisation', 'name']);
+        $extractor->setEntityToExtract(Project::class, ['organisation', 'name']);
         $qbExtractor = $extractor->getQueryBuilder();
         //We agree that you should not make where like query if you want reasonable performance
         $qbExtractor->andWhere(
@@ -45,6 +48,27 @@ class DoctrineEntityExtractorTest extends WebTestCase
 
         $this->assertEquals([
             'etl-bundle' => ['organisation' => '@smartbooster', 'name' => 'ETL Bundle']
+        ], $entities);
+
+
+        $extractor->setEntityToExtract(Task::class, ['code', 'project', 'name', 'tags']);
+        $entities = $extractor->extract();
+
+        $this->assertEquals(2, count($entities));
+
+        $this->assertEquals([
+            'etl-bundle-setup' => [
+                'code' => 'etl-bundle-setup',
+                'project' => '@etl-bundle',
+                'name' => 'Bundle setup',
+                'tags' => ['@doing', '@easy']
+            ],
+            'etl-bundle-loadyml' => [
+                'code' => 'etl-bundle-loadyml',
+                'project' => '@etl-bundle',
+                'name' => 'Load yml entity file into database',
+                'tags' => ['@todo', '@hard']
+            ]
         ], $entities);
     }
 }
