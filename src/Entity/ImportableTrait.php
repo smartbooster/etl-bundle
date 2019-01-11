@@ -13,7 +13,7 @@ trait ImportableTrait
      * Store id for remote source, use this as identifiant to make reference in import scripts.
      * @var string
      *
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=true, unique=true)
      */
     protected $importId;
 
