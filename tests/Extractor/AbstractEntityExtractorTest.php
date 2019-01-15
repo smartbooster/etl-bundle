@@ -83,6 +83,7 @@ abstract class AbstractEntityExtractorTest extends TestCase
             })
         ;
         $entities = $extractor->extract();
+        $this->assertEquals([], $entities);
     }
 
     /**
