@@ -74,6 +74,20 @@ abstract class AbstractEntityExtractorTest extends TestCase
     /**
      * @throws \Exception
      */
+    public function testExtractNullContent()
+    {
+        $extractor = $this->getExtractor();
+        $extractor
+            ->addEntityToProcess('dummy', Project::class, function ($e) {
+                return $e->getCode();
+            })
+        ;
+        $entities = $extractor->extract();
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function testExtractEntities()
     {
         $extractor = $this->getExtractor();
