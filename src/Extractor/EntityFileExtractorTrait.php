@@ -182,6 +182,10 @@ trait EntityFileExtractorTrait
         $filepath = sprintf('%s/%s.' . $this->getFileExtension(), $this->folderToExtract, $filename);
 
         $data = $this->extractFileContent($filepath);
+        if ($data === null) {
+            return;
+        }
+
         foreach ($data as $values) {
             if ($values === null) {
                 continue;
