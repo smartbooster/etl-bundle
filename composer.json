@@ -9,12 +9,10 @@
     {
       "name": "Nicolas Bastien",
       "email": "nicolas.bastien@smartbooster.io",
-      "homepage": "https://smartbooster.io"
+      "homepage": "https://www.smartbooster.io"
     }
   ],
   "require": {
-    "doctrine/doctrine-bundle": "^1.6",
-    "doctrine/doctrine-fixtures-bundle": "^2.0",
     "doctrine/orm": "^2.5",
     "symfony/console": "^2.8 || ^3.2 || ^4.0",
     "symfony/http-kernel": "^2.8 || ^3.2 || ^4.0",
@@ -24,7 +22,14 @@
     "symfony/finder": "^2.8 || ^3.2 || ^4.0"
   },
   "require-dev": {
+    "doctrine/doctrine-bundle": "^1.6",
+    "doctrine/doctrine-fixtures-bundle": "^2.0",
     "squizlabs/php_codesniffer": "^3.0",
+    "sebastian/phpcpd": "^2.0",
+    "phpmetrics/phpmetrics": "^2.5",
+    "phpstan/phpstan": "^0.12.3",
+    "phpstan/phpstan-doctrine": "^0.12.4",
+    "phpstan/phpstan-symfony": "^0.12.1",
     "phpunit/phpunit": "6.*",
     "liip/functional-test-bundle": "^1.9.5",
     "nelmio/alice": "^2.3"

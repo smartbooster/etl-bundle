@@ -40,8 +40,8 @@ trait EntityFileExtractorTrait
 
     /**
      * @param string $entityType
-     * @param string$entityClass
-     * @param function $identifierCallback
+     * @param string $entityClass
+     * @param callback $identifierCallback
      * @return $this
      * @throws \Exception
      */

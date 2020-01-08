@@ -134,7 +134,7 @@ abstract class AbstractEntityExtractorTest extends TestCase
             'easy' => $tagEasy,
             'hard' => $tagHard,
             'tasketl-bundle-9d05b' => $taskA,
-            'tasketl-bundle-519be' =>$taskB,
+            'tasketl-bundle-519be' => $taskB,
             'tasketl-bundle-c9264' => $taskC
         ], $entities);
     }

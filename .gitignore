@@ -2,3 +2,5 @@
 composer.lock
 phpunit.xml
 /var/
+/build
+/tests/var
