@@ -60,7 +60,7 @@ abstract class AbstractFolderExtrator extends AbstractExtractor
         $files = [];
         /* @var SplFileInfo $file */
         foreach ($finder->files()->name('*.' . $extension) as $file) {
-            $files[] = substr($file->getFilename(), 0, -(strlen($extension)+1));
+            $files[] = substr($file->getFilename(), 0, -(strlen($extension) + 1));
         }
 
         return array_combine($files, $files);

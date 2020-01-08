@@ -15,18 +15,31 @@ ssh:
 # ====================
 # Qualimetry rules
 
+qa: qualimetry
+qualimetry: checkstyle lint.php composer.validate metrics phpstan
+
 cs: checkstyle
 checkstyle:
-	vendor/bin/phpcs --ignore=/tests/app/AppKernel.php --extensions=php --encoding=utf-8 --standard=PSR2 -np src tests
+	vendor/bin/phpcs --extensions=php -n --standard=PSR12 --report=full src
 
 lint.php:
-	find tests src -type f -name "*.php" -exec php -l {} \;
+	find src -type f -name "*.php" -exec php -l {} \;
 
 composer.validate:
 	composer validate composer.json
 
-qa: qualimetry
-qualimetry: checkstyle lint.php composer.validate
+cb: code-beautifier
+code-beautifier:
+	vendor/bin/phpcbf --extensions=php --standard=PSR12 src tests
+
+cpd:
+	vendor/bin/phpcpd --fuzzy src
+
+metrics:
+	vendor/bin/phpmetrics --report-html=build/phpmetrics.html src
+
+phpstan:
+	vendor/bin/phpstan analyse src --level=1 -c phpstan.neon
 
 # ====================
 ## Testing

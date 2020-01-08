@@ -46,7 +46,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
     /**
      * @param string $entityClass
-     * @param function $identifierCallback
+     * @param callback $identifierCallback
      * @param string $identifierProperty : if null this entity will be always insert
      * @param array $entityProperties properties to synchronize
      * @return $this
