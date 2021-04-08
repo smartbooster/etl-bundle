@@ -21,7 +21,7 @@ abstract class AbstractFolderExtrator extends AbstractExtractor
     abstract protected function getFileExtension();
 
     /**
-     * @param  string $filepath
+     * @param string $filepath
      * @return mixed
      */
     abstract protected function extractFileContent($filepath);
@@ -48,9 +48,9 @@ abstract class AbstractFolderExtrator extends AbstractExtractor
             throw new \BadMethodCallException('Invalid folder to extract : ' . $this->folderToExtract);
         }
     }
-    
+
     /**
-     * @param  string $extension
+     * @param string $extension
      * @return array
      */
     protected function getFiles($extension)

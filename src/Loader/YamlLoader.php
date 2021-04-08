@@ -13,7 +13,7 @@ class YamlLoader extends AbstractFileLoader implements LoaderInterface
      * @inheritDoc
      */
     protected $fileExtension = 'yml';
-    
+
     /**
      * @inheritDoc
      */

@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 class YamlEntityExtractor extends AbstractFolderExtrator implements ExtractorInterface
 {
     use EntityFileExtractorTrait;
-    
+
     /**
      * @inheritDoc
      */
