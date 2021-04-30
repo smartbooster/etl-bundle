@@ -44,7 +44,7 @@ class CsvEntityExtractor extends AbstractFolderExtrator implements ExtractorInte
                 }
                 return $e;
             }, $csvData);
-            
+
             $datas[] = array_combine($headers, $csvData);
         }
 
