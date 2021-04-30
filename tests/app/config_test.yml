@@ -20,3 +20,16 @@ doctrine:
                         dir: '%kernel.project_dir%/tests/Entity'
                         prefix: 'Smart\EtlBundle\Tests'
                         alias: Test
+
+dama_doctrine_test:
+    enable_static_connection: true
+    enable_static_meta_data_cache: true
+    enable_static_query_cache: true
+
+fidry_alice_data_fixtures:
+    default_purge_mode: delete # default is "delete" but you can change it to "truncate" or "no_purge"
+    db_drivers:
+        doctrine_orm: true
+        doctrine_mongodb_odm: false
+        doctrine_phpcr_odm: false
+        eloquent_orm: false

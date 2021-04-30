@@ -4,8 +4,8 @@ namespace Smart\EtlBundle\Tests\Extractor;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Smart\EtlBundle\Extractor\DoctrineEntityExtractor;
+use Smart\EtlBundle\Tests\AbstractWebTestCase;
 use Smart\EtlBundle\Tests\Entity\Project;
 use Smart\EtlBundle\Tests\Entity\Task;
 
@@ -14,7 +14,7 @@ use Smart\EtlBundle\Tests\Entity\Task;
  *
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-class DoctrineEntityExtractorTest extends WebTestCase
+class DoctrineEntityExtractorTest extends AbstractWebTestCase
 {
     public function testExtractEntities()
     {
