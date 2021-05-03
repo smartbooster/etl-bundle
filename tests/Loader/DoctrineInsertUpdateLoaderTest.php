@@ -4,8 +4,8 @@ namespace Smart\EtlBundle\Tests\Loader;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Smart\EtlBundle\Loader\DoctrineInsertUpdateLoader;
+use Smart\EtlBundle\Tests\AbstractWebTestCase;
 use Smart\EtlBundle\Tests\Entity\Organisation;
 use Smart\EtlBundle\Tests\Entity\Project;
 use Smart\EtlBundle\Tests\Entity\Tag;
@@ -16,8 +16,9 @@ use Smart\EtlBundle\Tests\Entity\Task;
  *
  * @author Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
-class DoctrineInsertUpdateLoaderTest extends WebTestCase
+class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
 {
+
     public function testLoad()
     {
         //Initialise database
