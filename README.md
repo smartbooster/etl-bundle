@@ -5,9 +5,14 @@
 [![Total Downloads](https://poser.pugx.org/smartbooster/etl-bundle/downloads)](https://packagist.org/packages/smartbooster/etl-bundle)
 [![License](https://poser.pugx.org/smartbooster/etl-bundle/license)](https://packagist.org/packages/smartbooster/etl-bundle)
 
-[![Build Status](https://api.travis-ci.org/smartbooster/etl-bundle.png?branch=master)](https://travis-ci.org/smartbooster/etl-bundle)
+![CI workflow](https://github.com/smartbooster/etl-bundle/actions/workflows/ci.yml/badge.svg)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/smartbooster/etl-bundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/smartbooster/etl-bundle/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/smartbooster/etl-bundle/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/smartbooster/etl-bundle/?branch=master)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/870fd5e13d9f4befb3ff07c9d8eb26a8)](https://www.codacy.com/gh/smartbooster/etl-bundle/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=smartbooster/etl-bundle&amp;utm_campaign=Badge_Grade)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=smartbooster_etl-bundle&metric=alert_status)](https://sonarcloud.io/dashboard?id=smartbooster_etl-bundle)
+
+[![GitHub contributors](https://img.shields.io/github/contributors/smartbooster/sonata-bundle.svg)](https://github.com/smartbooster/sonata-bundle/graphs/contributors)
+
 
 ## Overview
 
