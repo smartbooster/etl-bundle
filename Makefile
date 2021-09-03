@@ -45,3 +45,6 @@ phpstan:
 ## Testing
 phpunit:
 	vendor/bin/phpunit -c phpunit.xml.dist --coverage-text
+
+coverage-html: ## Launch all tests with code coverage html
+	XDEBUG_MODE=coverage vendor/bin/phpunit tests --coverage-html build/phpunit
