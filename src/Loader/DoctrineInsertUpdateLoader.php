@@ -38,6 +38,11 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
      */
     protected $entitiesToProcess = [];
 
+    /**
+     * @var array
+     */
+    protected $logs = [];
+
     public function __construct($entityManager)
     {
         $this->entityManager = $entityManager;
@@ -68,7 +73,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     }
 
     /**
-     * @inheritDoc
+     * @throws \Exception
      */
     public function load(array $data)
     {
@@ -80,8 +85,9 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             $this->entityManager->flush();
             $this->entityManager->commit();
         } catch (\Exception $e) {
-            var_dump('EXCEPTION LOADER : ' . $e->getMessage());
             $this->entityManager->rollback();
+
+            throw new \Exception('EXCEPTION LOADER : ' . $e->getMessage());
         }
     }
 
@@ -93,13 +99,14 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
      */
     protected function processObject($object)
     {
-        if (!isset($this->entitiesToProcess[get_class($object)])) {
-            throw new EntityTypeNotHandledException(get_class($object));
+        $objectClass = get_class($object);
+        if (!isset($this->entitiesToProcess[$objectClass])) {
+            throw new EntityTypeNotHandledException($objectClass);
         }
-        $identifier = $this->entitiesToProcess[get_class($object)]['callback']($object);
+        $identifier = $this->entitiesToProcess[$objectClass]['callback']($object);
 
         //Replace relations by their reference
-        foreach ($this->entitiesToProcess[get_class($object)]['properties'] as $property) {
+        foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
             $propertyValue = $this->accessor->getValue($object, $property);
             if ($this->isEntityRelation($propertyValue)) {
                 $relation = $propertyValue; //better understanding
@@ -140,8 +147,9 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         }
 
         $dbObject = null;
-        if (!is_null($this->entitiesToProcess[get_class($object)]['identifier'])) {
-            $dbObject = $this->entityManager->getRepository(get_class($object))->findOneBy([$this->entitiesToProcess[get_class($object)]['identifier'] => $identifier]);
+        if (!is_null($this->entitiesToProcess[$objectClass]['identifier'])) {
+            // todo amélioration récupérer directement tous dbObject dont l'identifier match ceux présent dans $data
+            $dbObject = $this->entityManager->getRepository($objectClass)->findOneBy([$this->entitiesToProcess[$objectClass]['identifier'] => $identifier]);
         }
         if ($dbObject === null) {
             if (!$object->isImported()) {
@@ -151,14 +159,32 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             if (!is_null($identifier)) {
                 $this->references[$identifier] = $object;
             }
+
+            if (isset($this->logs[$objectClass])) {
+                $this->logs[$objectClass]['nb_created']++;
+            } else {
+                $this->logs[$objectClass] = [
+                    'nb_created' => 1,
+                    'nb_updated' => 0,
+                ];
+            }
         } else {
-            foreach ($this->entitiesToProcess[get_class($object)]['properties'] as $property) {
+            foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
                 $this->accessor->setValue($dbObject, $property, $this->accessor->getValue($object, $property));
             }
             if (!$dbObject->isImported()) {
                 $dbObject->setImportedAt(new \DateTime());
             }
             $this->references[$identifier] = $dbObject;
+
+            if (isset($this->logs[$objectClass])) {
+                $this->logs[$objectClass]['nb_updated']++;
+            } else {
+                $this->logs[$objectClass] = [
+                    'nb_created' => 0,
+                    'nb_updated' => 1,
+                ];
+            }
         }
 
         return $object;
@@ -173,5 +199,15 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     protected function isEntityRelation($propertyValue)
     {
         return (is_object($propertyValue) && !($propertyValue instanceof \DateTime) && !($propertyValue instanceof \Traversable));
+    }
+
+    public function getLogs(): array
+    {
+        return $this->logs;
+    }
+
+    public function clearLogs(): void
+    {
+        $this->logs = [];
     }
 }
