@@ -64,6 +64,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         $this->entitiesToProcess[$entityClass] = [
             'class' => $entityClass,
+            // todo refacto enlever le param callback et passer directement par l'accessor getValue
             'callback' => $identifierCallback,
             'identifier' => $identifierProperty,
             'properties' => $entityProperties
@@ -169,6 +170,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                 ];
             }
         } else {
+            // todo valider si aucun changement
             foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
                 $this->accessor->setValue($dbObject, $property, $this->accessor->getValue($object, $property));
             }
