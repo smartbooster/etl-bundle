@@ -18,12 +18,10 @@ use Smart\EtlBundle\Tests\Entity\Task;
  */
 class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
 {
-
     public function testLoad()
     {
         //Initialise database
-        /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine')->getManager('default');
+        $em = $this->entityManager;
         $metadatas = $em->getMetadataFactory()->getMetadataFor(Project::class);
 
         $schemaTool = new SchemaTool($em);
@@ -89,6 +87,7 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
             ['name']
         );
 
+        // Test updating an entity
         $loader->load([$projectEtl]);
 
         /** @var Project $projectEtlLoaded */
@@ -178,5 +177,34 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
             'code' => 'etl-bundle-setup'
         ]);
         $this->assertEquals(0, count($taskSetUpLoaded->getTags()));
+    }
+
+    public function testLoadLogs()
+    {
+        $this->loadFixtureFiles([]);
+        $project1 = new Project('p1', 'Project 1');
+        $project2 = new Project('p2', 'Project 2');
+
+        $loader = new DoctrineInsertUpdateLoader($this->entityManager);
+        $loader->addEntityToProcess(
+            Project::class,
+            function ($e) { return $e->getCode(); },
+            'code',
+            ['code', 'name',]
+        );
+
+        $loader->load([$project1, $project2]);
+        // test nb_created logs
+        $this->assertEquals([
+            Project::class => ['nb_created' => 2, 'nb_updated' => 0],
+        ], $loader->getLogs());
+
+        // test nb_updated logs + nb_created on top with entityClass index already defined
+        $loader->clearLogs();
+        $project3 = new Project('p3', 'Project 3');
+        $loader->load([$project1, $project2, $project3]);
+        $this->assertEquals([
+            Project::class => ['nb_created' => 1, 'nb_updated' => 2],
+        ], $loader->getLogs());
     }
 }

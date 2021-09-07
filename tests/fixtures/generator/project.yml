@@ -1,0 +1,4 @@
+Smart\EtlBundle\Tests\Entity\Project:
+    smart-pilot:
+        code: "P1"
+        name: "Smart Pilot"

@@ -60,6 +60,6 @@ trait ImportableTrait
      */
     public function isImported()
     {
-        return $this->getImportedAt() != null;
+        return $this->getImportedAt() !== null;
     }
 }
