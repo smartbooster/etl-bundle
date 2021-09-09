@@ -28,16 +28,17 @@ class DiffGenerator
 
     /**
      * @param array $multiArrayData multidimensional array data containing one entity data per row
+     * @TODO $identifierCallback can be remove once DiffGenerator will work with multiEntityData instead of Array
      */
-    public function generateDiffs(string $entityClass, array $multiArrayData)
+    public function generateDiffs(string $entityClass, array $multiArrayData, string $identifier = null, $identifierCallback = null)
     {
         $toReturn = [];
         if ($multiArrayData === []) {
             return $toReturn;
         }
 
-        // todo amélioration en récupérant uniquement ceux dont l'identifier match ceux présent dans $data
-        $identifier = array_keys($multiArrayData[0])[0];
+        $identifier = $identifier ?? array_keys($multiArrayData[0])[0];
+        // todo enhance entity query by only getting the one that identier are matching from $multiArrayData
         $entitiesFromDb = $this->entityManager->getRepository($entityClass)
             ->createQueryBuilder('o', "o.$identifier")
             ->getQuery()
@@ -45,10 +46,13 @@ class DiffGenerator
         ;
 
         foreach ($multiArrayData as $key => $row) {
-            $toReturn[$key] = $this->generateDiff(
-                $entitiesFromDb[reset($row)] ?? null,
-                $row
-            );
+            if ($identifierCallback === null) {
+                $entityFromDb = $entitiesFromDb[reset($row)] ?? null;
+            } else {
+                $entityFromDb = $entitiesFromDb[$identifierCallback($row)] ?? null;
+            }
+
+            $toReturn[$key] = $this->generateDiff($entityFromDb, $row);
         }
 
         return $toReturn;

@@ -2,10 +2,11 @@
 
 namespace Smart\EtlBundle\Tests\Loader;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
+use Smart\EtlBundle\Exception\Loader\LoadUnvalidObjectsException;
 use Smart\EtlBundle\Loader\DoctrineInsertUpdateLoader;
 use Smart\EtlBundle\Tests\AbstractWebTestCase;
+use Smart\EtlBundle\Tests\Entity\Milestone;
 use Smart\EtlBundle\Tests\Entity\Organisation;
 use Smart\EtlBundle\Tests\Entity\Project;
 use Smart\EtlBundle\Tests\Entity\Tag;
@@ -43,7 +44,7 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $projectEtl->setOrganisation($smartbooster);
         $projectEtl->setDescription('new description updated');
 
-        $loader = new DoctrineInsertUpdateLoader($em);
+        $loader = new DoctrineInsertUpdateLoader($em, self::$container->get('validator'));
         $loader->addEntityToProcess(
             Organisation::class,
             function ($e) {
@@ -185,7 +186,7 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $project1 = new Project('p1', 'Project 1');
         $project2 = new Project('p2', 'Project 2');
 
-        $loader = new DoctrineInsertUpdateLoader($this->entityManager);
+        $loader = new DoctrineInsertUpdateLoader($this->entityManager, self::$container->get('validator'));
         $loader->addEntityToProcess(
             Project::class,
             function ($e) { return $e->getCode(); },
@@ -206,5 +207,37 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $this->assertEquals([
             Project::class => ['nb_created' => 1, 'nb_updated' => 2],
         ], $loader->getLogs());
+    }
+
+    public function testLoadUnvalidObjectsException()
+    {
+        $this->loadFixtureFiles([]);
+
+        $project1 = new Project('p1', 'Project 1');
+        $milestone1 = new Milestone();
+        $milestone1->setName("Epic Milestone");
+        $milestone2 = new Milestone();
+        $milestone2->setName("Epic Milestone");
+
+        $loader = new DoctrineInsertUpdateLoader($this->entityManager, self::$container->get('validator'));
+        $loader->addEntityToProcess(
+            Project::class,
+            function ($e) { return $e->getCode(); },
+            'code',
+            ['code', 'name',]
+        );
+        $loader->addEntityToProcess(
+            Milestone::class,
+            function ($e) { return $e->getImportId(); },
+            'code',
+            ['name', 'project']
+        );
+
+        try {
+            $loader->load([$milestone2, $project1, $milestone1]);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(LoadUnvalidObjectsException::class, $e);
+            $this->assertCount(2, $e->arrayValidationErrors);
+        }
     }
 }

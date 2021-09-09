@@ -6,14 +6,19 @@ use Doctrine\ORM\EntityManager;
 use Smart\EtlBundle\Entity\ImportableInterface;
 use Smart\EtlBundle\Exception\Loader\EntityTypeNotHandledException;
 use Smart\EtlBundle\Exception\Loader\EntityAlreadyRegisteredException;
+use Smart\EtlBundle\Exception\Loader\LoaderException;
+use Smart\EtlBundle\Exception\Loader\LoadUnvalidObjectsException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Nicolas Bastien <nicolas.bastien@smartbooster.io>
  */
 class DoctrineInsertUpdateLoader implements LoaderInterface
 {
+    const VALIDATION_GROUPS = 'smart_etl_loader';
+
     /**
      * @var EntityManager
      */
@@ -41,11 +46,27 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     /**
      * @var array
      */
-    protected $logs = [];
+    protected $loadLogs = [];
 
-    public function __construct($entityManager)
+    /**
+     * @var array keep validation errors for each process object with his own associative data index
+     */
+    protected $arrayValidationErrors = [];
+
+    /**
+     * @var mixed
+     */
+    protected $processKey = null;
+
+    protected ?ValidatorInterface $validator = null;
+
+    /**
+     * @param ValidatorInterface|null $validator TODO NEXT_MAJOR remove nullable
+     */
+    public function __construct($entityManager, ValidatorInterface $validator = null)
     {
         $this->entityManager = $entityManager;
+        $this->validator = $validator;
         $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
@@ -64,7 +85,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         $this->entitiesToProcess[$entityClass] = [
             'class' => $entityClass,
-            // todo refacto enlever le param callback et passer directement par l'accessor getValue
+            // TODO NEXT MAJOR remove callback param and use accessor getValue instead
             'callback' => $identifierCallback,
             'identifier' => $identifierProperty,
             'properties' => $entityProperties
@@ -80,13 +101,23 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     {
         $this->entityManager->beginTransaction();
         try {
-            foreach ($data as $object) {
+            foreach ($data as $key => $object) {
+                $this->processKey = $key;
                 $this->processObject($object);
             }
+
+            if (count($this->arrayValidationErrors) > 0) {
+                throw new LoadUnvalidObjectsException($this->arrayValidationErrors);
+            }
+
+            // todo add a batch size for performance
             $this->entityManager->flush();
             $this->entityManager->commit();
         } catch (\Exception $e) {
             $this->entityManager->rollback();
+            if ($e instanceof LoaderException) {
+                throw $e;
+            }
 
             throw new \Exception('EXCEPTION LOADER : ' . $e->getMessage());
         }
@@ -104,6 +135,16 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         if (!isset($this->entitiesToProcess[$objectClass])) {
             throw new EntityTypeNotHandledException($objectClass);
         }
+
+        if ($this->validator !== null) {
+            $validationErrors = $this->validator->validate($object, null, self::VALIDATION_GROUPS);
+            if ($validationErrors->count() > 0) {
+                $this->arrayValidationErrors[$this->processKey] = $validationErrors;
+
+                return null;
+            }
+        }
+
         $identifier = $this->entitiesToProcess[$objectClass]['callback']($object);
 
         //Replace relations by their reference
@@ -149,7 +190,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         $dbObject = null;
         if (!is_null($this->entitiesToProcess[$objectClass]['identifier'])) {
-            // todo amélioration récupérer directement tous dbObject dont l'identifier match ceux présent dans $data
+            // todo enhance entity query by moving this on the load method and init the existing $dbObjects with matching identifier
             $dbObject = $this->entityManager->getRepository($objectClass)->findOneBy([$this->entitiesToProcess[$objectClass]['identifier'] => $identifier]);
         }
         if ($dbObject === null) {
@@ -161,16 +202,16 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                 $this->references[$identifier] = $object;
             }
 
-            if (isset($this->logs[$objectClass])) {
-                $this->logs[$objectClass]['nb_created']++;
+            if (isset($this->loadLogs[$objectClass])) {
+                $this->loadLogs[$objectClass]['nb_created']++;
             } else {
-                $this->logs[$objectClass] = [
+                $this->loadLogs[$objectClass] = [
                     'nb_created' => 1,
                     'nb_updated' => 0,
                 ];
             }
         } else {
-            // todo valider si aucun changement
+            // todo validate if there is no change (if so do not increase the nb_updated)
             foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
                 $this->accessor->setValue($dbObject, $property, $this->accessor->getValue($object, $property));
             }
@@ -179,10 +220,10 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             }
             $this->references[$identifier] = $dbObject;
 
-            if (isset($this->logs[$objectClass])) {
-                $this->logs[$objectClass]['nb_updated']++;
+            if (isset($this->loadLogs[$objectClass])) {
+                $this->loadLogs[$objectClass]['nb_updated']++;
             } else {
-                $this->logs[$objectClass] = [
+                $this->loadLogs[$objectClass] = [
                     'nb_created' => 0,
                     'nb_updated' => 1,
                 ];
@@ -205,11 +246,11 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
     public function getLogs(): array
     {
-        return $this->logs;
+        return $this->loadLogs;
     }
 
     public function clearLogs(): void
     {
-        $this->logs = [];
+        $this->loadLogs = [];
     }
 }
