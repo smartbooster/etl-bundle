@@ -2,7 +2,6 @@
 
 namespace Smart\EtlBundle\Tests\Loader;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Smart\EtlBundle\Exception\Loader\LoadUnvalidObjectsException;
 use Smart\EtlBundle\Loader\DoctrineInsertUpdateLoader;
@@ -12,7 +11,6 @@ use Smart\EtlBundle\Tests\Entity\Organisation;
 use Smart\EtlBundle\Tests\Entity\Project;
 use Smart\EtlBundle\Tests\Entity\Tag;
 use Smart\EtlBundle\Tests\Entity\Task;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * vendor/bin/phpunit tests/Loader/DoctrineInsertUpdateLoaderTest.php

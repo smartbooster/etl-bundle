@@ -108,5 +108,20 @@ class DiffGeneratorTest extends AbstractWebTestCase
 
         // test empty data
         $this->assertSame([], $diffGenerator->generateDiffs(Project::class, []));
+
+        // test identifier callback
+        $this->assertSame([
+            [
+                'diff_type' => 'new',
+                'diff' =>  [
+                    'code' => 'DUMMY',
+                    'name' => 'Test',
+                ]
+            ],
+        ], $diffGenerator->generateDiffs(Project::class, [
+            ['code' => 'DUMMY', 'name' => 'Test'],
+        ], 'code', function($row) {
+            return $row['code'];
+        }));
     }
 }

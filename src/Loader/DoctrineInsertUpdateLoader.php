@@ -60,7 +60,10 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
     protected ?ValidatorInterface $validator = null;
 
-    public function __construct($entityManager, ValidatorInterface $validator)
+    /**
+     * @param ValidatorInterface|null $validator TODO NEXT_MAJOR remove nullable
+     */
+    public function __construct($entityManager, ValidatorInterface $validator = null)
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
@@ -82,7 +85,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         $this->entitiesToProcess[$entityClass] = [
             'class' => $entityClass,
-            // todo refacto enlever le param callback et passer directement par l'accessor getValue
+            // TODO NEXT MAJOR remove callback param and use accessor getValue instead
             'callback' => $identifierCallback,
             'identifier' => $identifierProperty,
             'properties' => $entityProperties
@@ -107,7 +110,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                 throw new LoadUnvalidObjectsException($this->arrayValidationErrors);
             }
 
-            // todo batch size
+            // todo add a batch size for performance
             $this->entityManager->flush();
             $this->entityManager->commit();
         } catch (\Exception $e) {
@@ -133,11 +136,13 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             throw new EntityTypeNotHandledException($objectClass);
         }
 
-        $validationErrors = $this->validator->validate($object, null, self::VALIDATION_GROUPS);
-        if ($validationErrors->count() > 0) {
-            $this->arrayValidationErrors[$this->processKey] = $validationErrors;
+        if ($this->validator !== null) {
+            $validationErrors = $this->validator->validate($object, null, self::VALIDATION_GROUPS);
+            if ($validationErrors->count() > 0) {
+                $this->arrayValidationErrors[$this->processKey] = $validationErrors;
 
-            return null;
+                return null;
+            }
         }
 
         $identifier = $this->entitiesToProcess[$objectClass]['callback']($object);
@@ -185,7 +190,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         $dbObject = null;
         if (!is_null($this->entitiesToProcess[$objectClass]['identifier'])) {
-            // todo amélioration récupérer directement tous dbObject dont l'identifier match ceux présent dans $data
+            // todo enhance entity query by moving this on the load method and init the existing $dbObjects with matching identifier
             $dbObject = $this->entityManager->getRepository($objectClass)->findOneBy([$this->entitiesToProcess[$objectClass]['identifier'] => $identifier]);
         }
         if ($dbObject === null) {
@@ -206,7 +211,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                 ];
             }
         } else {
-            // todo valider si aucun changement
+            // todo validate if there is no change (if so do not increase the nb_updated)
             foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
                 $this->accessor->setValue($dbObject, $property, $this->accessor->getValue($object, $property));
             }
