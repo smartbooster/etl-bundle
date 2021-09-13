@@ -267,10 +267,13 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         // get all needed db object
         foreach ($dbObjectsParam as $class => $identifiers) {
-            $dbObjects = $this->entityManager->getRepository($class)->findBy([$this->entitiesToProcess[$class]['identifier'] => $identifiers]);
-            foreach ($dbObjects as $dbObject) {
-                $toReturn[$class][$this->accessor->getValue($dbObject, $this->entitiesToProcess[$class]['identifier'])] = $dbObject;
-            }
+            $identifier = $this->entitiesToProcess[$class]['identifier'];
+            $toReturn[$class] = $this->entityManager->getRepository($class)
+                ->createQueryBuilder('o', "o.$identifier")
+                ->where("o.$identifier IN (:identifiers)")
+                ->setParameter('identifiers', $identifiers)
+                ->getQuery()
+                ->getResult();
         }
 
         return $toReturn;
