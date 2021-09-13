@@ -47,17 +47,11 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $loader = new DoctrineInsertUpdateLoader($em, self::$container->get('validator'));
         $loader->addEntityToProcess(
             Organisation::class,
-            function ($e) {
-                return $e->getImportId();
-            },
             'importId',
             [] //nothing to update, just for relation linking
         );
         $loader->addEntityToProcess(
             Project::class,
-            function ($e) {
-                return $e->getCode();
-            },
             'code',
             [
                 'organisation',
@@ -68,9 +62,6 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         );
         $loader->addEntityToProcess(
             Task::class,
-            function ($e) {
-                return $e->getCode();
-            },
             'code',
             [
                 'project',
@@ -81,9 +72,6 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         );
         $loader->addEntityToProcess(
             Tag::class,
-            function ($e) {
-                return $e->getImportId();
-            },
             'importId',
             ['name']
         );
@@ -189,7 +177,6 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $loader = new DoctrineInsertUpdateLoader($this->entityManager, self::$container->get('validator'));
         $loader->addEntityToProcess(
             Project::class,
-            function ($e) { return $e->getCode(); },
             'code',
             ['code', 'name',]
         );
@@ -222,13 +209,11 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $loader = new DoctrineInsertUpdateLoader($this->entityManager, self::$container->get('validator'));
         $loader->addEntityToProcess(
             Project::class,
-            function ($e) { return $e->getCode(); },
             'code',
             ['code', 'name',]
         );
         $loader->addEntityToProcess(
             Milestone::class,
-            function ($e) { return $e->getImportId(); },
             'code',
             ['name', 'project']
         );

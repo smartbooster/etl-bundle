@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class DoctrineInsertUpdateLoader implements LoaderInterface
 {
     const VALIDATION_GROUPS = 'smart_etl_loader';
+    const BATCH_SIZE = 30;
 
     /**
      * @var EntityManager
@@ -58,12 +59,12 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
      */
     protected $processKey = null;
 
-    protected ?ValidatorInterface $validator = null;
+    protected ValidatorInterface $validator;
 
     /**
-     * @param ValidatorInterface|null $validator TODO NEXT_MAJOR remove nullable
+     * @param ValidatorInterface $validator
      */
-    public function __construct($entityManager, ValidatorInterface $validator = null)
+    public function __construct($entityManager, ValidatorInterface $validator)
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
@@ -72,12 +73,11 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
     /**
      * @param string $entityClass
-     * @param callback $identifierCallback
      * @param string $identifierProperty : if null this entity will be always insert
      * @param array $entityProperties properties to synchronize
      * @return $this
      */
-    public function addEntityToProcess($entityClass, $identifierCallback, $identifierProperty, array $entityProperties = [])
+    public function addEntityToProcess($entityClass, $identifierProperty, array $entityProperties = [])
     {
         if (isset($this->entitiesToProcess[$entityClass])) {
             throw new EntityAlreadyRegisteredException($entityClass);
@@ -85,8 +85,6 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
 
         $this->entitiesToProcess[$entityClass] = [
             'class' => $entityClass,
-            // TODO NEXT MAJOR remove callback param and use accessor getValue instead
-            'callback' => $identifierCallback,
             'identifier' => $identifierProperty,
             'properties' => $entityProperties
         ];
@@ -101,16 +99,22 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     {
         $this->entityManager->beginTransaction();
         try {
+            $index = 1;
             foreach ($data as $key => $object) {
                 $this->processKey = $key;
                 $this->processObject($object);
+
+                if (($index % self::BATCH_SIZE) === 0) {
+                    $this->entityManager->flush();
+                }
+
+                $index++;
             }
 
             if (count($this->arrayValidationErrors) > 0) {
                 throw new LoadUnvalidObjectsException($this->arrayValidationErrors);
             }
 
-            // todo add a batch size for performance
             $this->entityManager->flush();
             $this->entityManager->commit();
         } catch (\Exception $e) {
@@ -136,17 +140,14 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             throw new EntityTypeNotHandledException($objectClass);
         }
 
-        if ($this->validator !== null) {
-            $validationErrors = $this->validator->validate($object, null, self::VALIDATION_GROUPS);
-            if ($validationErrors->count() > 0) {
-                $this->arrayValidationErrors[$this->processKey] = $validationErrors;
+        $validationErrors = $this->validator->validate($object, null, self::VALIDATION_GROUPS);
+        if ($validationErrors->count() > 0) {
+            $this->arrayValidationErrors[$this->processKey] = $validationErrors;
 
-                return null;
-            }
+            return null;
         }
 
-        $identifier = $this->entitiesToProcess[$objectClass]['callback']($object);
-
+        $identifier = $this->accessor->getValue($object, $this->entitiesToProcess[$objectClass]['identifier']);
         //Replace relations by their reference
         foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
             $propertyValue = $this->accessor->getValue($object, $property);
@@ -156,7 +157,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                 if (!isset($this->entitiesToProcess[get_class($relation)])) {
                     throw new EntityTypeNotHandledException(get_class($relation));
                 }
-                $relationIdentifier = $this->entitiesToProcess[get_class($relation)]['callback']($relation);
+                $relationIdentifier = $this->accessor->getValue($relation, $this->entitiesToProcess[get_class($relation)]['identifier']);
                 if (!isset($this->references[$relationIdentifier])) {
                     //new relation should be processed before
                     $this->processObject($relation);
@@ -172,7 +173,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
                         if (!isset($this->entitiesToProcess[get_class($v)])) {
                             throw new EntityTypeNotHandledException(get_class($v));
                         }
-                        $relationIdentifier = $this->entitiesToProcess[get_class($v)]['callback']($v);
+                        $relationIdentifier = $this->accessor->getValue($v, $this->entitiesToProcess[get_class($v)]['identifier']);
                         if (!isset($this->references[$relationIdentifier])) {
                             //new relation should be processed before
                             $this->processObject($v);
