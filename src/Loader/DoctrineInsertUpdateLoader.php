@@ -8,6 +8,7 @@ use Smart\EtlBundle\Exception\Loader\EntityTypeNotHandledException;
 use Smart\EtlBundle\Exception\Loader\EntityAlreadyRegisteredException;
 use Smart\EtlBundle\Exception\Loader\LoaderException;
 use Smart\EtlBundle\Exception\Loader\LoadUnvalidObjectsException;
+use Smart\EtlBundle\Utils\ArrayUtils;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -100,9 +101,11 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         $this->entityManager->beginTransaction();
         try {
             $index = 1;
+            $dbObjects = $this->getDbObjects($data);
+
             foreach ($data as $key => $object) {
                 $this->processKey = $key;
-                $this->processObject($object);
+                $this->processObject($object, $dbObjects);
 
                 if (($index % self::BATCH_SIZE) === 0) {
                     $this->entityManager->flush();
@@ -133,7 +136,7 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
      * @throws \Exception
      * @throws \TypeError
      */
-    protected function processObject($object)
+    protected function processObject($object, array $dbObjects)
     {
         $objectClass = get_class($object);
         if (!isset($this->entitiesToProcess[$objectClass])) {
@@ -154,13 +157,10 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             if ($this->isEntityRelation($propertyValue)) {
                 $relation = $propertyValue; //better understanding
 
-                if (!isset($this->entitiesToProcess[get_class($relation)])) {
-                    throw new EntityTypeNotHandledException(get_class($relation));
-                }
                 $relationIdentifier = $this->accessor->getValue($relation, $this->entitiesToProcess[get_class($relation)]['identifier']);
                 if (!isset($this->references[$relationIdentifier])) {
                     //new relation should be processed before
-                    $this->processObject($relation);
+                    $this->processObject($relation, $dbObjects);
                 }
                 $this->accessor->setValue(
                     $object,
@@ -170,13 +170,10 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
             } elseif ($propertyValue instanceof \Traversable) {
                 foreach ($propertyValue as $k => $v) {
                     if ($this->isEntityRelation($v)) {
-                        if (!isset($this->entitiesToProcess[get_class($v)])) {
-                            throw new EntityTypeNotHandledException(get_class($v));
-                        }
                         $relationIdentifier = $this->accessor->getValue($v, $this->entitiesToProcess[get_class($v)]['identifier']);
                         if (!isset($this->references[$relationIdentifier])) {
                             //new relation should be processed before
-                            $this->processObject($v);
+                            $this->processObject($v, $dbObjects);
                         }
                         $propertyValue[$k] = $this->references[$relationIdentifier];
                     }
@@ -190,9 +187,9 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
         }
 
         $dbObject = null;
-        if (!is_null($this->entitiesToProcess[$objectClass]['identifier'])) {
-            // todo enhance entity query by moving this on the load method and init the existing $dbObjects with matching identifier
-            $dbObject = $this->entityManager->getRepository($objectClass)->findOneBy([$this->entitiesToProcess[$objectClass]['identifier'] => $identifier]);
+
+        if (isset($dbObjects[$objectClass]) && isset($dbObjects[$objectClass][$identifier])) {
+            $dbObject = $dbObjects[$objectClass][$identifier];
         }
         if ($dbObject === null) {
             if (!$object->isImported()) {
@@ -253,5 +250,65 @@ class DoctrineInsertUpdateLoader implements LoaderInterface
     public function clearLogs(): void
     {
         $this->loadLogs = [];
+    }
+
+    private function getDbObjects(array $datas): array
+    {
+        $dbObjectsParam = [];
+        $toReturn = [];
+
+        // construct of array with all db object identifier needed
+        foreach ($datas as $object) {
+            $objectClass = get_class($object);
+
+            $dbObjectsParam = ArrayUtils::addMultidimensionalArrayValue($dbObjectsParam, $objectClass, $this->accessor->getValue($object, $this->entitiesToProcess[$objectClass]['identifier']));
+            $dbObjectsParam = $this->addDbObjectRelationParam($object, $dbObjectsParam);
+        }
+
+        // get all needed db object
+        foreach ($dbObjectsParam as $class => $identifiers) {
+            $dbObjects = $this->entityManager->getRepository($class)->findBy([$this->entitiesToProcess[$class]['identifier'] => $identifiers]);
+            foreach ($dbObjects as $dbObject) {
+                $toReturn[$class][$this->accessor->getValue($dbObject, $this->entitiesToProcess[$class]['identifier'])] = $dbObject;
+            }
+        }
+
+        return $toReturn;
+    }
+
+    /** Look relation of object and add param in $dbObjectsParam */
+    private function addDbObjectRelationParam($object, $dbObjectsParam): array
+    {
+        $objectClass = get_class($object);
+        foreach ($this->entitiesToProcess[$objectClass]['properties'] as $property) {
+            $propertyValue = $this->accessor->getValue($object, $property);
+            if ($this->isEntityRelation($propertyValue)) {
+                $relation = $propertyValue; //better understanding
+
+                $dbObjectsParam = $this->addRelationParam($relation, $dbObjectsParam);
+            } elseif ($propertyValue instanceof \Traversable) {
+                foreach ($propertyValue as $v) {
+                    if ($this->isEntityRelation($v)) {
+                        $dbObjectsParam = $this->addRelationParam($v, $dbObjectsParam);
+                    }
+                }
+            }
+        }
+
+        return $dbObjectsParam;
+    }
+
+    private function addRelationParam($object, array $dbObjectsParam): array
+    {
+        if (!isset($this->entitiesToProcess[get_class($object)])) {
+            throw new EntityTypeNotHandledException(get_class($object));
+        }
+        $relationIdentifier = $this->accessor->getValue($object, $this->entitiesToProcess[get_class($object)]['identifier']);
+        if (!isset($this->references[$relationIdentifier])) {
+            $dbObjectsParam = ArrayUtils::addMultidimensionalArrayValue($dbObjectsParam, get_class($object), $relationIdentifier);
+            $dbObjectsParam = $this->addDbObjectRelationParam($object, $dbObjectsParam);
+        }
+
+        return $dbObjectsParam;
     }
 }

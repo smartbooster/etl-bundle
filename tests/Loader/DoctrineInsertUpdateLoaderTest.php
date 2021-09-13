@@ -28,7 +28,7 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         $schemaTool = new SchemaTool($em);
         $schemaTool->dropDatabase();
         $schemaTool->createSchema([$metadatas]);
-        
+
         $this->loadFixtureFiles([
             __DIR__ . '/../fixtures/doctrine-loader/organisation.yml',
             __DIR__ . '/../fixtures/doctrine-loader/project.yml',
@@ -214,7 +214,7 @@ class DoctrineInsertUpdateLoaderTest extends AbstractWebTestCase
         );
         $loader->addEntityToProcess(
             Milestone::class,
-            'code',
+            'name',
             ['name', 'project']
         );
 
