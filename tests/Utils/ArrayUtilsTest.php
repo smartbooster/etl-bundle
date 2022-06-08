@@ -157,4 +157,28 @@ class ArrayUtilsTest extends TestCase
             ['firstName', 'lastName'],
         );
     }
+
+    /** @dataProvider AddMultidimensionalArrayValueProvider */
+    public function testAddMultidimensionalArrayValue(array $array, string $key, string $value, array $expected): void
+    {
+        $this->assertEquals($expected, ArrayUtils::addMultidimensionalArrayValue($array, $key ,$value));
+    }
+
+    public function AddMultidimensionalArrayValueProvider(): array
+    {
+        return [
+            'without_value' => [
+                [],
+                'key',
+                'value',
+                ['key' => ['value']]
+            ],
+            'with_values' => [
+                ['superman' => ['fly'], 'batman' => ['brave']],
+                'batman',
+                'cool',
+                ['superman' => ['fly'], 'batman' => ['brave', 'cool']]
+            ],
+        ];
+    }
 }

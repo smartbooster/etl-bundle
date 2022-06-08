@@ -101,4 +101,17 @@ class ArrayUtils
 
         return $toReturn;
     }
+
+    /**
+     * Add value in the array of values of key
+     */
+    public static function addMultidimensionalArrayValue(array $array, string $key, $value): array
+    {
+        if (!isset($array[$key])) {
+            $array[$key] = [];
+        }
+        array_push($array[$key], $value);
+
+        return $array;
+    }
 }
